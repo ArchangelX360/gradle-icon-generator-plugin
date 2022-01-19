@@ -10,9 +10,7 @@ repositories {
 }
 
 dependencies {
-    val roasterVersion = "2.23.2.Final"
-    implementation("org.jboss.forge.roaster:roaster-api:$roasterVersion")
-    implementation("org.jboss.forge.roaster:roaster-jdt:$roasterVersion")
+    implementation("com.github.javaparser:javaparser-symbol-solver-core:3.24.0")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit5"))

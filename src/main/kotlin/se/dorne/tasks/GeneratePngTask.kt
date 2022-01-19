@@ -6,8 +6,8 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.jboss.forge.roaster.Roaster
-import org.jboss.forge.roaster.model.JavaClass
+import se.dorne.parser.Base64Icon
+import se.dorne.parser.extractBase64Icons
 import java.io.File
 import java.nio.file.Path
 import java.util.*
@@ -23,16 +23,15 @@ abstract class GeneratePngTask : DefaultTask() {
     @get:OutputDirectory
     abstract val output: DirectoryProperty
 
+    private val base64Decoder = Base64.getDecoder()
+
     @TaskAction
     fun deploy() {
-        val outputFolder = project.mkdir(output.get())
-
         sourceDirectories
             .get()
             .flatMap { scanJavaIconFiles(it) }
-            .flatMap { extractBase64Icons(outputFolder, it) }
-            .onEach { println(it) }
-            .map { it.saveToPng() }
+            .flatMap { extractBase64Icons(base64Decoder, it) }
+            .map { it.saveToPng(output.get().asFile.toPath()) }
     }
 
     private fun scanJavaIconFiles(directory: File): List<File> = directory
@@ -40,43 +39,10 @@ abstract class GeneratePngTask : DefaultTask() {
         .filter { it.path.endsWith(iconSuffix) }
         .toList()
 
-    // TODO: this function needs to be re-organised
-    private fun extractBase64Icons(outputFolder: File, javaFile: File): List<Base64Icon> {
-        val file = Roaster.parse(javaFile)
-        if (file.isClass) {
-            val classFile = file as JavaClass
-            return classFile.fields
-                .filter { it.type.isType(String::class.java) }
-                .map {
-                    Base64Icon(
-                        data = it.stringInitializer,
-                        // FIXME: revise this
-                        destination = Path.of(
-                            outputFolder.toString(),
-                            file.getPackage(),
-                            file.getName(),
-                            "${it.name}.png"
-                        ),
-                    )
-                }
-            // TODO: support nested classes with `classFile.nestedTypes`
-        } else {
-            // TODO: rework this error message
-            error("Java File must have a class")
-        }
-    }
-
     @OptIn(ExperimentalPathApi::class)
-    private fun Base64Icon.saveToPng() {
-        // FIXME: for now, every string will be tried, but we need to either filter the base64 ones, or handle failure properly here
-        val image = Base64.getDecoder().decode(this.data)
-        this.destination.parent.createDirectories()
-        val f = this.destination.toFile()
-        f.writeBytes(image)
+    private fun Base64Icon.saveToPng(outputFolder: Path) {
+        val pngFilepath = Path.of(outputFolder.toString(), this.name.toString())
+        pngFilepath.parent.createDirectories()
+        pngFilepath.toFile().writeBytes(this.image)
     }
 }
-
-private data class Base64Icon(
-    val data: String,
-    val destination: Path,
-)

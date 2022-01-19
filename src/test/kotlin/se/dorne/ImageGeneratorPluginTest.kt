@@ -16,7 +16,7 @@ internal class ImageGeneratorPluginTest {
     @OptIn(ExperimentalPathApi::class)
     @Test
     fun `should generate png for minimal project`() {
-        val projectName = "minimal-project"
+        val projectName = "example-projects/minimal-project"
         val minimalProjectDirectory = getProjectDirectory(projectName)
         assertNotNull(minimalProjectDirectory, "could not find project '$projectName' in test resources")
 
@@ -25,10 +25,9 @@ internal class ImageGeneratorPluginTest {
             .build()
 
         project.pluginManager.apply(ImageGeneratorPlugin::class.java)
-        // TODO: Investigate why project.extensions.configure<SourceSetExtension> does not work (fails with `Type mismatch: inferred type is (SourceSet).(Any?) -> Unit but (TypeVariable(T)).() -> Unit was expected`)
         project.the(SourceSetExtension::class).directories.set(
             listOf(
-                Path.of(project.projectDir.path, "src", "main", "java").toFile()
+                project.layout.projectDirectory.dir("src/main/java").asFile
             )
         )
 
