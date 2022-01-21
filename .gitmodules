@@ -1,0 +1,3 @@
+[submodule "example-project-intellij/intellij-community"]
+	path = example-project-intellij/intellij-community
+	url = https://github.com/JetBrains/intellij-community.git
