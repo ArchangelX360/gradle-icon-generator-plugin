@@ -1,3 +1,9 @@
+buildscript {
+    dependencies {
+        classpath("se.dorne:icon-generator-plugin")
+    }
+}
+
 plugins {
     id("icon-generator-plugin")
     id("java")

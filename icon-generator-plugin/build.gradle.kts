@@ -1,6 +1,9 @@
 plugins {
     `kotlin-dsl`
+    `java-gradle-plugin`
 }
+
+group = "se.dorne"
 
 repositories {
     mavenCentral()
@@ -11,7 +14,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit5"))
-    // testImplementation(gradleTestKit())
+    testImplementation(gradleTestKit())
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }
 

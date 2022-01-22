@@ -1,4 +1,6 @@
 rootProject.name = "icon-generator"
 
-include("example-project-intellij")
-include("example-project-minimal")
+includeBuild("icon-generator-plugin")
+
+include("examples:example-project-intellij")
+include("examples:example-project-minimal")

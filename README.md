@@ -14,24 +14,26 @@ git submodule update --init --recursive
 
 ## Repository structure
 
-The Gradle plugin which constitute the main deliverable of this assignement is located under `buildSrc`.
+The Gradle plugin which constitute the main deliverable of this assignement is located under `icon-generator-plugin`.
 
 ```
-├── buildSrc                  #
-│   ├── build.gradle          # deliverable of the assignement
-│   └── src                   #
-└── example-project-intellij
-│   ├── build.gradle
-│   └── intellij-community    # submodule of IntelliJ IDEA community git repo to showcase the plugin's performance
-└── example-project-minimal
-    ├── build.gradle
-    └── src                   # very simple project to tryout the plugin
+├── icon-generator-plugin         #
+│   ├── build.gradle              # deliverable of the assignement
+│   └── src                       #
+└── examples
+    ├── example-project-intellij
+    │   ├── build.gradle
+    │   └── intellij-community    # submodule of IntelliJ IDEA community git repo to showcase the plugin's performance
+    └── example-project-minimal
+        ├── build.gradle
+        └── src                   # very simple project to tryout the plugin
+
 ```
 
-In a real world example, we would have made the plugin part of its dedicated project instead, and add tooling to release
-it as a regular Gradle plugin.
-For the sake of simplicity and easy testing, this repository is a playground where example
-project can be created as subprojects in Gradle.
+The `examples` directory is a playground to try out the plugin, editing, adding, removing files and running the plugin 
+tasks.
+For the sake of simplicity for reviewing the assignment, `icon-generator-plugin` is included with `includeBuild` to 
+allow usage as a `buildscript` dependency for the example projects. 
 
 ## How to use the plugin
 
@@ -60,7 +62,8 @@ The plugin will generate two tasks:
 
 Some additional configuration are available such as:
 - `javaFileIconSuffix` the File pattern that selects which java files will be parsed
-- `iconFieldType` the icon field pattern that selects which fields are being parsed as icons by filtering on the field's type
+- `iconFieldType` the icon field pattern that selects which fields are being parsed as icons by filtering on the field's
+  type
 - `outputDirectory` the root directory of the generated icons
 
 Example of configuration:
@@ -70,6 +73,18 @@ generateIconsForSources {
         project.layout.projectDirectory.dir("intellij-community"),
     )
     iconFieldType.set("Icon")
+}
+```
+
+### For example projects
+
+Example projects can use the plugin by declaring, in addition to the configuration of the previous sections, a 
+`buildscript` delegate:
+```kotlin
+buildscript {
+    dependencies {
+        classpath("se.dorne:icon-generator-plugin")
+    }
 }
 ```
 
@@ -85,7 +100,8 @@ generateIconsForSources {
   - [x] works well on a scale of intellij-community repository
 - Patterns are configurable
   - [x] File pattern, such as `Icons.java` suffix, is configurable (selects which files are being parsed)
-  - [x] Icon field pattern, such as "is of type `String`",  is configurable (selects which fields are being parsed as icons)
+  - [x] Icon field pattern, such as "is of type `String`",  is configurable (selects which fields are being parsed as
+    icons)
 - Failure recovery
   - [x] Files could be malformed, the plugin "must handle that properly"
   - [x] Fields could have invalid base64 string content, the plugin "must handle that properly"
@@ -102,12 +118,21 @@ generateIconsForSources {
 
 ### Decisions
 
-- Each Java source file `Icon.java` is processed in parallel using Gradle WorkerAPI to improve performance (build time reduced by 33% on IntelliJ Community repo)
 - Gradle incremental framework does not expose state of file changes, we have to maintain this state in one or more 
 output files in order to fulfill the cleanup of deleted icons
   - In Java multiple classes are allowed inside the same file, so the path generation requirement does not allow us to
     infer the output subdirectories from a source file, it will at best give us up to the package name which could lead
     to incorrect cleanup of outputs of other classes of the package
+
+### Optimisations
+
+The plugin uses several optimisations
+- `generateIcons` is an incremental task, it will only process changed (added/modified/deleted) files since the last run 
+  of the task
+- `generateIcons` is cacheable, if the task ran for a sets of inputs, a subsequent run of the task for the same set of 
+  inputs will be instant recovering the outputs from the Gradle cache
+- `generateIcons` is executing in parallel, leveraging the WorkerAPI where each source file is processed in parallel to
+  improve performance (for example, build time reduced by 33% on IntelliJ Community repo)
 
 ### Known limitations
 
