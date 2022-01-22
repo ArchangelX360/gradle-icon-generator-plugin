@@ -62,6 +62,7 @@ project can be created as subprojects in Gradle.
 
 - Gradle incremental framework does not expose state of file changes, we have to maintain this state in one or more 
 output files in order to fulfill the cleanup of deleted icons
+- Each Java source file `Icon.java` is processed in parallel using Gradle WorkerAPI to improve performance (build time reduced by 33% on IntelliJ Community repo)
 
 ### Known limitations
 
