@@ -14,6 +14,7 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 import se.dorne.parser.Icon
+import se.dorne.LOG
 import se.dorne.parser.extractBase64Icons
 import java.io.File
 import java.nio.file.Path
@@ -30,6 +31,8 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
 
     @get:Incremental
     @get:InputFiles
+    // TODO: we may be able to use PathSensitivity.RELATIVE here, as the relative location of our classes is not important
+    // in the same way it is not for the JavaCompile example here https://docs.gradle.org/current/userguide/build_cache_concepts.html#relocatability
     @get:PathSensitive(value = PathSensitivity.ABSOLUTE)
     abstract val sourceFiles: ConfigurableFileCollection
 
@@ -59,7 +62,7 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
         val workQueue = workerExecutor.noIsolation()
         inputChanges.getFileChanges(sourceFiles)
             .asSequence()
-            // .onEach { println("processing ${it.file.path}, ${it.changeType}") }
+            .onEach { LOG.debug("processing ${it.file.path}, ${it.changeType}") }
             .filter { it.fileType != FileType.DIRECTORY }
             .filter { it.normalizedPath.endsWith(suffix) }
             .forEach { change ->

@@ -5,7 +5,6 @@ import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-// FIXME: test are not running anymore since it is in buildSrc?
 internal class ParserTest {
     @Test
     fun `should extract icons`() {

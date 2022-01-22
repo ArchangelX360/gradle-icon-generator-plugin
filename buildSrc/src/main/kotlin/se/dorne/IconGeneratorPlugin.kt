@@ -7,6 +7,8 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import se.dorne.tasks.GeneratePngTask
 
 abstract class GeneratePngExtension {
@@ -33,3 +35,5 @@ class IconGeneratorPlugin : Plugin<Project> {
         }
     }
 }
+
+val LOG: Logger = LoggerFactory.getLogger("icon-generator-logger")
