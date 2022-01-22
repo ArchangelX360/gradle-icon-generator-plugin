@@ -26,6 +26,7 @@ class IconGeneratorPlugin : Plugin<Project> {
 
         val generateTasks = project.tasks.register<GeneratePngTask>("generateIcons") {
             group = "icons"
+            description = "generate icons of sources configured through `generateIconsForSources` extension"
 
             javaFileIconSuffix.set(sourceExtension.javaFileIconSuffix)
             iconFieldType.set(sourceExtension.iconFieldType)
@@ -38,6 +39,8 @@ class IconGeneratorPlugin : Plugin<Project> {
 
         project.tasks.register<Delete>("cleanIcons") {
             group = "icons"
+            description = "cleanup the outputs of `generateIcons` task"
+
             delete(generateTasks.get().outputs)
         }
     }

@@ -52,6 +52,10 @@ generateIconsForSources {
 }
 ```
 
+The plugin will generate two tasks:
+- `generateIcons` to generate icons of sources configured through `generateIconsForSources` extension
+- `cleanIcons` to cleanup the outputs of `generateIcons` task
+
 ### Configuration
 
 Some additional configuration are available such as:
