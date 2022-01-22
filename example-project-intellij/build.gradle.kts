@@ -1,10 +1,10 @@
 plugins {
-    id("image-generator-plugin")
+    id("icon-generator-plugin")
 }
 
-generatePngForSources {
-    sourceDirectories.setFrom(
+generateIconsForSources {
+    sources.setFrom(
         project.layout.projectDirectory.dir("intellij-community"),
     )
-    iconVariableType.set("Icon")
+    iconFieldType.set("Icon")
 }

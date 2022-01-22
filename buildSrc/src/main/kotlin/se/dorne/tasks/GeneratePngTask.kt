@@ -45,7 +45,7 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
 
     @get:Input
     @get:Optional
-    abstract val iconVariableType: Property<String>
+    abstract val iconFieldType: Property<String>
 
     @OptIn(ExperimentalPathApi::class)
     @TaskAction
@@ -53,7 +53,7 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
         val outputFolder = outputDir.get()
         val stateOutputFolder = stateOutputDir.get()
         val suffix = javaFileIconSuffix.orNull ?: defaultJavaFileIconSuffix
-        val iconVariableType = iconVariableType.orNull ?: defaultIconType
+        val iconFieldType = iconFieldType.orNull ?: defaultIconType
 
         // TODO: should filtering of files be handle by a SourceSet task instead?
         val workQueue = workerExecutor.noIsolation()
@@ -71,7 +71,7 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
                     this.changeType.set(change.changeType)
                     this.changeFile.set(change.file)
                     this.outputFolder.set(outputFolder)
-                    this.iconVariableType.set(iconVariableType)
+                    this.iconFieldType.set(iconFieldType)
                 }
             }
         workQueue.await()
@@ -82,7 +82,7 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
         val changeType: Property<ChangeType>
         val changeFile: Property<File>
         val outputFolder: DirectoryProperty
-        val iconVariableType: Property<String>
+        val iconFieldType: Property<String>
     }
 
     abstract class GenerateIconsAction : WorkAction<GenerateIconsActionParameters> {
@@ -93,19 +93,19 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
             val changeType = parameters.changeType.get()
             val changeFile = parameters.changeFile.get()
             val outputFolder = parameters.outputFolder.get()
-            val iconVariableType = parameters.iconVariableType.get()
+            val iconFieldType = parameters.iconFieldType.get()
 
             val stateFile = stateOutputFolder.file(changeFile.path.replace("/", "_")).asFile
             val state = State.resolve(stateFile)
             when (changeType) {
                 ChangeType.ADDED -> {
-                    val iconPaths = changeFile.saveIcons(outputFolder, iconVariableType)
+                    val iconPaths = changeFile.saveIcons(outputFolder, iconFieldType)
                     state.recordOutputs(iconPaths)
                     state.save(stateFile)
                 }
                 ChangeType.MODIFIED -> {
                     state.cleanOutputs() // we are going to reprocess all the outputs of this file
-                    val iconPaths = changeFile.saveIcons(outputFolder, iconVariableType)
+                    val iconPaths = changeFile.saveIcons(outputFolder, iconFieldType)
                     state.recordOutputs(iconPaths)
                     state.save(stateFile)
                 }
@@ -116,8 +116,8 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
             }
         }
 
-        private fun File.saveIcons(to: Directory, iconVariableType: String): List<File> {
-            val icons = extractBase64Icons(this, iconVariableType)
+        private fun File.saveIcons(to: Directory, iconFieldType: String): List<File> {
+            val icons = extractBase64Icons(this, iconFieldType)
             val outputToIcon = icons.associateBy {
                 to.file(it.relativePath.toString()).asFile
             }

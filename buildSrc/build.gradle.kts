@@ -21,9 +21,9 @@ tasks.test {
 
 gradlePlugin {
     plugins {
-        register("imageGeneratorPlugin") {
-            id = "image-generator-plugin"
-            implementationClass = "se.dorne.ImageGeneratorPlugin"
+        register("iconGeneratorPlugin") {
+            id = "icon-generator-plugin"
+            implementationClass = "se.dorne.IconGeneratorPlugin"
         }
     }
 }

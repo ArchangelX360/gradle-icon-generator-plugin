@@ -33,10 +33,48 @@ it as a regular Gradle plugin.
 For the sake of simplicity and easy testing, this repository is a playground where example
 project can be created as subprojects in Gradle.
 
+## How to use the plugin
+
+Set your plugin block like such:
+```kotlin
+plugins {
+    id("icon-generator-plugin")
+}
+```
+
+Configure which directories the plugin should process by adding a `generateIconsForSources` block
+```kotlin
+generateIconsForSources {
+    sources.setFrom(
+        project.layout.projectDirectory.dir("the-directory-containing-the-sources-you-want-to-process"),
+        project.layout.projectDirectory.dir("another-one"),
+    )
+}
+```
+
+### Configuration
+
+Some additional configuration are available such as:
+- `javaFileIconSuffix` the File pattern that selects which java files will be parsed
+- `iconFieldType` the icon field pattern that selects which fields are being parsed as icons by filtering on the field's type
+- `outputDirectory` the root directory of the generated icons
+
+Example of configuration:
+```kotlin
+generateIconsForSources {
+    sources.setFrom(
+        project.layout.projectDirectory.dir("intellij-community"),
+    )
+    iconFieldType.set("Icon")
+}
+```
+
 ## Assignement notes
 
 ### Requirements
 
+- Generate PNG image files based on icon fields in Java sources
+  - [x] Output filepath pattern is `<packageName>/<className>/<iconFieldName>.png`
 - Uses the incremental ask of Gradle
   - [x] only process source files that have been changed in between two runs of the plugin
   - [x] Handle add/update/delete of source files, addind/updating/cleaning up the relevant icons
@@ -60,12 +98,13 @@ project can be created as subprojects in Gradle.
 
 ### Decisions
 
+- Each Java source file `Icon.java` is processed in parallel using Gradle WorkerAPI to improve performance (build time reduced by 33% on IntelliJ Community repo)
 - Gradle incremental framework does not expose state of file changes, we have to maintain this state in one or more 
 output files in order to fulfill the cleanup of deleted icons
-- Each Java source file `Icon.java` is processed in parallel using Gradle WorkerAPI to improve performance (build time reduced by 33% on IntelliJ Community repo)
+  - In Java multiple classes are allowed inside the same file, so the path generation requirement does not allow us to
+    infer the output subdirectories from a source file, it will at best give us up to the package name which could lead
+    to incorrect cleanup of outputs of other classes of the package
 
 ### Known limitations
 
 - Empty output directory of delete icons are not cleaned up
-
-

@@ -10,23 +10,23 @@ import org.gradle.kotlin.dsl.register
 import se.dorne.tasks.GeneratePngTask
 
 abstract class GeneratePngExtension {
-    abstract val sourceDirectories: ConfigurableFileCollection
+    abstract val sources: ConfigurableFileCollection
     abstract val outputDirectory: DirectoryProperty
 
     abstract val javaFileIconSuffix: Property<String>
-    abstract val iconVariableType: Property<String>
+    abstract val iconFieldType: Property<String>
 }
 
-class ImageGeneratorPlugin : Plugin<Project> {
+class IconGeneratorPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        val sourceExtension = project.extensions.create<GeneratePngExtension>("generatePngForSources")
+        val sourceExtension = project.extensions.create<GeneratePngExtension>("generateIconsForSources")
 
-        project.tasks.register<GeneratePngTask>("generatePngs") {
+        project.tasks.register<GeneratePngTask>("generateIcons") {
             group = "icons"
 
             javaFileIconSuffix.set(sourceExtension.javaFileIconSuffix)
-            iconVariableType.set(sourceExtension.iconVariableType)
-            sourceFiles.setFrom(sourceExtension.sourceDirectories)
+            iconFieldType.set(sourceExtension.iconFieldType)
+            sourceFiles.setFrom(sourceExtension.sources)
             val output = sourceExtension.outputDirectory.orNull ?: project.layout.buildDirectory.dir("icons").get()
             outputDir.set(output)
             stateOutputDir.set(project.layout.buildDirectory.dir("icon-states").get())

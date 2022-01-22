@@ -1,10 +1,10 @@
 plugins {
-    id("image-generator-plugin")
+    id("icon-generator-plugin")
     id("java")
 }
 
-generatePngForSources {
-    sourceDirectories.setFrom(
+generateIconsForSources {
+    sources.setFrom(
         project.layout.projectDirectory.dir("src")
     )
 }
