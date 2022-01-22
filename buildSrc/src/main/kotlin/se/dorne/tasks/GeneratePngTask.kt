@@ -7,16 +7,16 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileType
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import org.gradle.api.tasks.Optional
 import org.gradle.work.ChangeType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
+import org.gradle.workers.WorkAction
+import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 import se.dorne.parser.Icon
 import se.dorne.parser.extractBase64Icons
 import java.io.File
 import java.nio.file.Path
-import java.util.*
 import javax.inject.Inject
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
@@ -47,8 +47,6 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
     @get:Optional
     abstract val iconVariableType: Property<String>
 
-    private val base64Decoder = Base64.getDecoder()
-
     @OptIn(ExperimentalPathApi::class)
     @TaskAction
     fun execute(inputChanges: InputChanges) {
@@ -57,47 +55,81 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
         val suffix = javaFileIconSuffix.orNull ?: defaultJavaFileIconSuffix
         val iconVariableType = iconVariableType.orNull ?: defaultIconType
 
+        // TODO: should filtering of files be handle by a SourceSet task instead?
+        val workQueue = workerExecutor.noIsolation()
         inputChanges.getFileChanges(sourceFiles)
             .asSequence()
-            .onEach { println("processing ${it.file.path}, ${it.changeType}") }
+            // .onEach { println("processing ${it.file.path}, ${it.changeType}") }
             .filter { it.fileType != FileType.DIRECTORY }
             .filter { it.normalizedPath.endsWith(suffix) }
             .forEach { change ->
-                val stateFile = stateOutputFolder.file(change.file.path.replace("/", "_")).asFile
-                val state = State.resolve(stateFile)
-                when (change.changeType) {
-                    ChangeType.ADDED -> {
-                        val iconPaths = saveIcons(change.file, outputFolder, iconVariableType)
-                        state.recordOutputs(iconPaths)
-                        state.save(stateFile)
-                    }
-                    ChangeType.MODIFIED -> {
-                        state.cleanOutputs() // we are going to reprocess all the outputs of this file
-                        val iconPaths = saveIcons(change.file, outputFolder, iconVariableType)
-                        state.recordOutputs(iconPaths)
-                        state.save(stateFile)
-                    }
-                    ChangeType.REMOVED -> {
-                        state.cleanOutputs()
-                        stateFile.toPath().deleteIfExists()
-                    }
+                // each file has isolated output so can be process in parallel
+                workQueue.submit(
+                    GenerateIconsAction::class.java
+                ) {
+                    this.stateOutputFolder.set(stateOutputFolder)
+                    this.changeType.set(change.changeType)
+                    this.changeFile.set(change.file)
+                    this.outputFolder.set(outputFolder)
+                    this.iconVariableType.set(iconVariableType)
                 }
             }
+        workQueue.await()
     }
 
-    private fun saveIcons(ofFile: File, outputFolder: Directory, iconVariableType: String): List<File> {
-        val icons = extractBase64Icons(base64Decoder, ofFile, iconVariableType)
-        val outputToIcon = icons.associateBy {
-            outputFolder.file(it.relativePath.toString()).asFile
+    interface GenerateIconsActionParameters : WorkParameters {
+        val stateOutputFolder: DirectoryProperty
+        val changeType: Property<ChangeType>
+        val changeFile: Property<File>
+        val outputFolder: DirectoryProperty
+        val iconVariableType: Property<String>
+    }
+
+    abstract class GenerateIconsAction : WorkAction<GenerateIconsActionParameters> {
+
+        @OptIn(ExperimentalPathApi::class)
+        override fun execute() {
+            val stateOutputFolder = parameters.stateOutputFolder.get()
+            val changeType = parameters.changeType.get()
+            val changeFile = parameters.changeFile.get()
+            val outputFolder = parameters.outputFolder.get()
+            val iconVariableType = parameters.iconVariableType.get()
+
+            val stateFile = stateOutputFolder.file(changeFile.path.replace("/", "_")).asFile
+            val state = State.resolve(stateFile)
+            when (changeType) {
+                ChangeType.ADDED -> {
+                    val iconPaths = changeFile.saveIcons(outputFolder, iconVariableType)
+                    state.recordOutputs(iconPaths)
+                    state.save(stateFile)
+                }
+                ChangeType.MODIFIED -> {
+                    state.cleanOutputs() // we are going to reprocess all the outputs of this file
+                    val iconPaths = changeFile.saveIcons(outputFolder, iconVariableType)
+                    state.recordOutputs(iconPaths)
+                    state.save(stateFile)
+                }
+                ChangeType.REMOVED -> {
+                    state.cleanOutputs()
+                    stateFile.toPath().deleteIfExists()
+                }
+            }
         }
-        outputToIcon.forEach { (outputFile, icon) -> icon.save(outputFile) }
-        return outputToIcon.keys.toList()
-    }
 
-    @OptIn(ExperimentalPathApi::class)
-    private fun Icon.save(to: File) {
-        to.toPath().parent.createDirectories()
-        to.writeBytes(this.content)
+        private fun File.saveIcons(to: Directory, iconVariableType: String): List<File> {
+            val icons = extractBase64Icons(this, iconVariableType)
+            val outputToIcon = icons.associateBy {
+                to.file(it.relativePath.toString()).asFile
+            }
+            outputToIcon.forEach { (outputFile, icon) -> icon.save(outputFile) }
+            return outputToIcon.keys.toList()
+        }
+
+        @OptIn(ExperimentalPathApi::class)
+        private fun Icon.save(to: File) {
+            to.toPath().parent.createDirectories()
+            to.writeBytes(this.content)
+        }
     }
 }
 

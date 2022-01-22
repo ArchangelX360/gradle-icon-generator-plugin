@@ -2,7 +2,6 @@ package se.dorne.parser
 
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
-import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -11,7 +10,7 @@ internal class ParserTest {
     @Test
     fun `should extract icons`() {
         val javaFile = Path.of("src", "test", "resources", "MultiClassFile.java").toFile()
-        val icons = extractBase64Icons(Base64.getDecoder(), javaFile, "String")
+        val icons = extractBase64Icons(javaFile, "String")
         assertEquals(
             setOf(
                 "foo/Parent/AIcon.png",
@@ -26,7 +25,7 @@ internal class ParserTest {
     @Test
     fun `should ignore invalid file`() {
         val javaFile = Path.of("src", "test", "resources", "Invalid.java").toFile()
-        val icons = extractBase64Icons(Base64.getDecoder(), javaFile, "String")
+        val icons = extractBase64Icons(javaFile, "String")
         assertTrue(icons.isEmpty())
     }
 }

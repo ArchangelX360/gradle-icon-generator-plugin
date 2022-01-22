@@ -17,7 +17,7 @@ data class Icon(
     val relativePath: Path,
 )
 
-fun extractBase64Icons(base64Decoder: Base64.Decoder, javaFile: File, type: String): List<Icon> {
+fun extractBase64Icons(javaFile: File, type: String): List<Icon> {
     try {
         return StaticJavaParser.parse(javaFile)
             .findAll(FieldDeclaration::class.java)
@@ -29,7 +29,7 @@ fun extractBase64Icons(base64Decoder: Base64.Decoder, javaFile: File, type: Stri
                     // TODO: log warning?
                     null
                 } else {
-                    it.toBase64Icon(base64Decoder, className.get().fullyQualifiedName.get())
+                    it.toBase64Icon(className.get().fullyQualifiedName.get())
                 }
             }
     } catch (e: ParseProblemException) {
@@ -39,13 +39,12 @@ fun extractBase64Icons(base64Decoder: Base64.Decoder, javaFile: File, type: Stri
 }
 
 private fun FieldDeclaration.toBase64Icon(
-    base64Decoder: Base64.Decoder,
     javaClassFullyQualifiedName: String
 ): Icon? {
     val variable = this.variables.first.get()
     when (val initializer = variable.initializer.get()) {
         is StringLiteralExpr -> {
-            val image = base64Decoder.tryDecode(initializer.asStringLiteralExpr().asString())
+            val image = Base64.getDecoder().tryDecode(initializer.asStringLiteralExpr().asString())
                 ?: return null // ignore String variables that are not valid base64 representation
             return Icon(
                 relativePath = generateLocation(javaClassFullyQualifiedName, variable, "png"),
