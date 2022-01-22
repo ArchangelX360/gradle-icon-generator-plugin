@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Delete
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 import org.slf4j.Logger
@@ -23,7 +24,7 @@ class IconGeneratorPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val sourceExtension = project.extensions.create<GeneratePngExtension>("generateIconsForSources")
 
-        project.tasks.register<GeneratePngTask>("generateIcons") {
+        val generateTasks = project.tasks.register<GeneratePngTask>("generateIcons") {
             group = "icons"
 
             javaFileIconSuffix.set(sourceExtension.javaFileIconSuffix)
@@ -31,7 +32,13 @@ class IconGeneratorPlugin : Plugin<Project> {
             sourceFiles.setFrom(sourceExtension.sources)
             val output = sourceExtension.outputDirectory.orNull ?: project.layout.buildDirectory.dir("icons").get()
             outputDir.set(output)
-            stateOutputDir.set(project.layout.buildDirectory.dir("icon-states").get())
+            val stateOutput = project.layout.buildDirectory.dir("icon-states").get()
+            stateOutputDir.set(stateOutput)
+        }
+
+        project.tasks.register<Delete>("cleanIcons") {
+            group = "icons"
+            delete(generateTasks.get().outputs)
         }
     }
 }
