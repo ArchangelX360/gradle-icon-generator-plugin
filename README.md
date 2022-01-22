@@ -39,6 +39,7 @@ project can be created as subprojects in Gradle.
 
 - Uses the incremental ask of Gradle
   - [ ] only process source files that have been changed in between two runs of the plugin
+  - [ ] Handle add/update/delete of source files, addind/updating/cleaning up the relevant icons
   - [x] works well on a scale of intellij-community repository
 - Patterns are configurable
   - [x] File pattern, such as `Icons.java` suffix, is configurable (selects which files are being parsed)
@@ -56,4 +57,9 @@ project can be created as subprojects in Gradle.
 - Default file pattern will be the suffix `Icons.java`
 - [validated with interviewer] Default icon field pattern will be "any field of type `String`"
 - Files that does not respect the file pattern will be ignored, never parsed
+
+### Decisions
+
+- Gradle incremental framework does not expose state of file changes, we have to maintain this state in one or more 
+output files in order to fulfill the cleanup of deleted icons
 

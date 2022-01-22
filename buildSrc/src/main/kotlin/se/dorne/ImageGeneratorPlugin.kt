@@ -29,6 +29,7 @@ class ImageGeneratorPlugin : Plugin<Project> {
             sourceFiles.setFrom(sourceExtension.sourceDirectories)
             val output = sourceExtension.outputDirectory.orNull ?: project.layout.buildDirectory.dir("icons").get()
             outputDir.set(output)
+            stateOutputDir.set(project.layout.buildDirectory.dir("icon-states").get())
         }
     }
 }
