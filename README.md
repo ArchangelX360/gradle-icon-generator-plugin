@@ -33,13 +33,13 @@ it as a regular Gradle plugin.
 For the sake of simplicity and easy testing, this repository is a playground where example
 project can be created as subprojects in Gradle.
 
-## Assignement rules
+## Assignement notes
 
 ### Requirements
 
 - Uses the incremental ask of Gradle
-  - [ ] only process source files that have been changed in between two runs of the plugin
-  - [ ] Handle add/update/delete of source files, addind/updating/cleaning up the relevant icons
+  - [x] only process source files that have been changed in between two runs of the plugin
+  - [x] Handle add/update/delete of source files, addind/updating/cleaning up the relevant icons
   - [x] works well on a scale of intellij-community repository
 - Patterns are configurable
   - [x] File pattern, such as `Icons.java` suffix, is configurable (selects which files are being parsed)
@@ -62,4 +62,9 @@ project can be created as subprojects in Gradle.
 
 - Gradle incremental framework does not expose state of file changes, we have to maintain this state in one or more 
 output files in order to fulfill the cleanup of deleted icons
+
+### Known limitations
+
+- Empty output directory of delete icons are not cleaned up
+
 
