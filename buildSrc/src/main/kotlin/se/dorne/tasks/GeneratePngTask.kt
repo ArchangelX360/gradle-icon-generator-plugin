@@ -25,10 +25,12 @@ import kotlin.io.path.deleteIfExists
 private const val defaultJavaFileIconSuffix = "Icons.java"
 private const val defaultIconType = "String"
 
-abstract class GeneratePngTask : DefaultTask() {
+@CacheableTask
+abstract class GeneratePngTask @Inject constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
 
     @get:Incremental
     @get:InputFiles
+    @get:PathSensitive(value = PathSensitivity.ABSOLUTE)
     abstract val sourceFiles: ConfigurableFileCollection
 
     @get:OutputDirectory
