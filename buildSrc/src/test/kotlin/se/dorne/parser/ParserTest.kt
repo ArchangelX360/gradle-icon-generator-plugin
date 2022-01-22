@@ -19,7 +19,7 @@ internal class ParserTest {
                 "foo/Parent/Nested/CIcon.png",
                 "foo/Two/TwoIcon.png",
             ),
-            icons.map { it.name.toString() }.toSet()
+            icons.map { it.relativePath.toString() }.toSet()
         )
     }
 

@@ -14,7 +14,7 @@ import java.util.*
 
 data class Icon(
     val content: ByteArray,
-    val name: Path,
+    val relativePath: Path,
 )
 
 fun extractBase64Icons(base64Decoder: Base64.Decoder, javaFile: File, type: String): List<Icon> {
@@ -48,14 +48,14 @@ private fun FieldDeclaration.toBase64Icon(
             val image = base64Decoder.tryDecode(initializer.asStringLiteralExpr().asString())
                 ?: return null // ignore String variables that are not valid base64 representation
             return Icon(
-                name = generateLocation(javaClassFullyQualifiedName, variable, "png"),
+                relativePath = generateLocation(javaClassFullyQualifiedName, variable, "png"),
                 content = image,
             )
         }
         // TODO: this is used for testing in large scale IntelliJ project, it should probably be removed in the future
         is MethodCallExpr -> {
             return Icon(
-                name = generateLocation(javaClassFullyQualifiedName, variable, "txt"),
+                relativePath = generateLocation(javaClassFullyQualifiedName, variable, "txt"),
                 content = initializer.asMethodCallExpr().toString().toByteArray(),
             )
         }
