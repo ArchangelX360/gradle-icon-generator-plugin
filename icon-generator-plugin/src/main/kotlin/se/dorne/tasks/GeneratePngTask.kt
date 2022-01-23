@@ -104,7 +104,6 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
                 ChangeType.REMOVED -> {
                     state.cleanOutputs(cleanupStateFile = true)
                 }
-                null -> LOG.warn("received null ChangeType from Gradle for file $changeFile, ignoring")
             }
         }
 
