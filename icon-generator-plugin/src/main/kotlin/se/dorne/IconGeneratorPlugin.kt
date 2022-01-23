@@ -6,6 +6,8 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.util.PatternFilterable
+import org.gradle.api.tasks.util.PatternSet
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 import org.slf4j.Logger
@@ -14,11 +16,12 @@ import se.dorne.tasks.GeneratePngTask
 
 abstract class GeneratePngExtension {
     abstract val sources: ConfigurableFileCollection
+    abstract val patternFilterable: Property<PatternFilterable>
     abstract val outputDirectory: DirectoryProperty
-
-    abstract val javaFileIconSuffix: Property<String>
     abstract val iconFieldType: Property<String>
 }
+
+private val defaultFilePattern = PatternSet().include("**/*Icons.java")
 
 class IconGeneratorPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -28,9 +31,11 @@ class IconGeneratorPlugin : Plugin<Project> {
             group = "icons"
             description = "generate icons of sources configured through `generateIconsForSources` extension"
 
-            javaFileIconSuffix.set(sourceExtension.javaFileIconSuffix)
+            // the pattern filtering here avoid time-consuming "fingerprinting" step for the very first build
+            val pattern = sourceExtension.patternFilterable.orNull ?: defaultFilePattern
+            sourceFiles.setFrom(sourceExtension.sources.asFileTree.matching(pattern))
             iconFieldType.set(sourceExtension.iconFieldType)
-            sourceFiles.setFrom(sourceExtension.sources)
+
             val output = sourceExtension.outputDirectory.orNull ?: project.layout.buildDirectory.dir("icons").get()
             outputDir.set(output)
             val stateOutput = project.layout.buildDirectory.dir("icon-states").get()

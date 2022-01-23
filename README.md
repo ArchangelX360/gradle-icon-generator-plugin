@@ -61,9 +61,9 @@ The plugin will generate two tasks:
 ### Configuration
 
 Some additional configuration are available such as:
-- `javaFileIconSuffix` the File pattern that selects which java files will be parsed
+- `patternFilterable` the File pattern that selects which java files will be parsed, defaults to `include("**/*Icons.java")`
 - `iconFieldType` the icon field pattern that selects which fields are being parsed as icons by filtering on the field's
-  type
+  type, defaults to `String`
 - `outputDirectory` the root directory of the generated icons
 
 Example of configuration:
@@ -73,6 +73,10 @@ generateIconsForSources {
         project.layout.projectDirectory.dir("intellij-community"),
     )
     iconFieldType.set("Icon")
+    patternFilterable.set(
+        PatternSet()
+            .include("**/*.java")
+    )
 }
 ```
 
@@ -110,10 +114,10 @@ buildscript {
 
 ### Assumptions made
 
-- [validated with interviewer] Icon fields will always be `public` and `final`
+- *[validated with interviewer]* Icon fields will always be `public` and `final`
 - Default output directory root will be the Gradle build directory, subdirectory `icons`
 - Default file pattern will be the suffix `Icons.java`
-- [validated with interviewer] Default icon field pattern will be "any field of type `String`"
+- *[validated with interviewer]* Default icon field pattern will be "any field of type `String`"
 - Files that does not respect the file pattern will be ignored, never parsed
 
 ### Decisions
@@ -123,6 +127,7 @@ output files in order to fulfill the cleanup of deleted icons
   - In Java multiple classes are allowed inside the same file, so the path generation requirement does not allow us to
     infer the output subdirectories from a source file, it will at best give us up to the package name which could lead
     to incorrect cleanup of outputs of other classes of the package
+- the plugin's extension exposes a `PatternFilterable` property to give the most filtering flexibility to users
 
 ### Optimisations
 
@@ -133,6 +138,10 @@ The plugin uses several optimisations
   inputs will be instant recovering the outputs from the Gradle cache
 - `generateIcons` is executing in parallel, leveraging the WorkerAPI where each source file is processed in parallel to
   improve performance (for example, build time reduced by 33% on IntelliJ Community repo)
+- the plugin's extension exposes a `PatternFilterable` property that is used at task configuration to reduce the
+  potential high number of inputs for the `generateIcons` task by filtering file *before* setting them as inputs of the
+  task. Large amount of inputs leads to long "fingerprinting"during the very first run of the task which impact
+  performance. For example, this change reduced the "fingerprinting" time of the task from 20s to 4s.
 
 ### Known limitations
 

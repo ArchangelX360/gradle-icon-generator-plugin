@@ -13,8 +13,8 @@ import org.gradle.work.InputChanges
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
-import se.dorne.parser.Icon
 import se.dorne.LOG
+import se.dorne.parser.Icon
 import se.dorne.parser.extractBase64Icons
 import java.io.File
 import java.nio.file.Path
@@ -23,7 +23,6 @@ import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 import kotlin.io.path.deleteIfExists
 
-private const val defaultJavaFileIconSuffix = "Icons.java"
 private const val defaultIconType = "String"
 
 @CacheableTask
@@ -44,10 +43,6 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
 
     @get:Input
     @get:Optional
-    abstract val javaFileIconSuffix: Property<String>
-
-    @get:Input
-    @get:Optional
     abstract val iconFieldType: Property<String>
 
     @OptIn(ExperimentalPathApi::class)
@@ -55,16 +50,13 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
     fun execute(inputChanges: InputChanges) {
         val outputFolder = outputDir.get()
         val stateOutputFolder = stateOutputDir.get()
-        val suffix = javaFileIconSuffix.orNull ?: defaultJavaFileIconSuffix
         val iconFieldType = iconFieldType.orNull ?: defaultIconType
 
-        // TODO: should filtering of files be handle by a SourceSet task instead?
         val workQueue = workerExecutor.noIsolation()
         inputChanges.getFileChanges(sourceFiles)
             .asSequence()
             .onEach { LOG.debug("processing ${it.file.path}, ${it.changeType}") }
             .filter { it.fileType != FileType.DIRECTORY }
-            .filter { it.normalizedPath.endsWith(suffix) }
             .forEach { change ->
                 // each file has isolated output so can be process in parallel
                 workQueue.submit(
