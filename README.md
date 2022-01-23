@@ -120,15 +120,6 @@ buildscript {
 - *[validated with interviewer]* Default icon field pattern will be "any field of type `String`"
 - Files that does not respect the file pattern will be ignored, never parsed
 
-### Decisions
-
-- Gradle incremental framework does not expose state of file changes, we have to maintain this state in one or more 
-output files in order to fulfill the cleanup of deleted icons
-  - In Java multiple classes are allowed inside the same file, so the path generation requirement does not allow us to
-    infer the output subdirectories from a source file, it will at best give us up to the package name which could lead
-    to incorrect cleanup of outputs of other classes of the package
-- the plugin's extension exposes a `PatternFilterable` property to give the most filtering flexibility to users
-
 ### Optimisations
 
 The plugin uses several optimisations
@@ -146,3 +137,56 @@ The plugin uses several optimisations
 ### Known limitations
 
 - Empty output directory of delete icons are not cleaned up
+
+### Decisions
+
+- Gradle incremental framework does not expose state of file changes, we have to maintain this state in one or more
+  output files in order to fulfill the cleanup of deleted icons and the addition/update of added/changed icons (see
+  Section below "Managing a state")
+- the plugin's extension exposes a `PatternFilterable` property to give the most filtering flexibility to users
+
+#### Managing a state
+
+When a file is updated or removed, some of the previous outputs (some generated icons) have to be cleaned up from the
+output directory.
+Our generation requirements is limited in the case where a Java file declares multiple classes (one public, and one or
+more non-public).
+For example, take into consideration a project with two files:
+
+```java
+// in file src/main/java/foo/AIcons.java
+package foo;
+
+public class AIcons {
+    public final static String AIcon = "some base 64 content AIcon";
+}
+
+class BIcons {
+    public final static String BIcon = "some base 64 content BIcon";
+}
+```
+```java
+// in file src/main/java/foo/CIcons.java
+package foo;
+
+public class CIcons {
+  public final static String CIcon = "some base 64 content CIcon";
+}
+```
+
+The plugin will generate the following icons:
+```
+foo/CIcons/OtherIcon.png
+foo/BIcons/BIcon.png
+foo/AIcons/AIcon.png
+```
+
+Gradle incremental framework does not expose the previous state when a file changes (UPDATED/REMOVED), only the
+filename of the file.
+
+From this filename only, let's say `src/main/java/foo/AIcons.java` is modified or deleted, we can predict that the
+output directory `foo/AIcons` needs to be cleaned up and re-processed.
+However, we have no way of knowing that `foo/BIcons/BIcon.png` also needs to be cleaned up and re-processed.
+
+For that reason, we have to maintain this state in one or more output files in order to fulfill the cleanup of deleted
+icons and the addition/update of added/changed icons.
