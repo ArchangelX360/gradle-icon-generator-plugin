@@ -131,12 +131,16 @@ The plugin uses several optimisations
   improve performance (for example, build time reduced by 33% on IntelliJ Community repo)
 - the plugin's extension exposes a `PatternFilterable` property that is used at task configuration to reduce the
   potential high number of inputs for the `generateIcons` task by filtering file *before* setting them as inputs of the
-  task. Large amount of inputs leads to long "fingerprinting"during the very first run of the task which impact
+  task. Large amount of inputs leads to long "fingerprinting" during the very first run of the task which impact
   performance. For example, this change reduced the "fingerprinting" time of the task from 20s to 4s.
 
 ### Known limitations
 
-- Empty output directory of delete icons are not cleaned up
+- Empty output directory of deleted icons are not cleaned up
+- Incrementality works at file level, not at output icon level. Meaning that a change in a file will clean up all
+  previously generated icons _for this file_, and regenerate them. The parsing of the input file is unavoidable, so
+  having icon level granularity would avoid some base64 decoding for fields that did not change to the tradeoff of
+  having a mechanism to quickly identify is the base64 string of the field is different from the previous run.
 
 ### Decisions
 
