@@ -31,8 +31,6 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
 
     @get:Incremental
     @get:InputFiles
-    // TODO: we may be able to use PathSensitivity.RELATIVE here, as the relative location of our classes is not important
-    // in the same way it is not for the JavaCompile example here https://docs.gradle.org/current/userguide/build_cache_concepts.html#relocatability
     @get:PathSensitive(value = PathSensitivity.ABSOLUTE)
     abstract val sourceFiles: ConfigurableFileCollection
 
@@ -46,7 +44,6 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
     @get:Optional
     abstract val iconFieldType: Property<String>
 
-    @OptIn(ExperimentalPathApi::class)
     @TaskAction
     fun execute(inputChanges: InputChanges) {
         val outputFolder = outputDir.get()
