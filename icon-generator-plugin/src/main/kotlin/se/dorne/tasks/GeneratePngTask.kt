@@ -26,6 +26,7 @@ import kotlin.io.path.deleteIfExists
 private const val defaultIconType = "String"
 
 @CacheableTask
+@OptIn(ExperimentalPathApi::class)
 abstract class GeneratePngTask @Inject constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
 
     @get:Incremental
@@ -82,7 +83,6 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
 
     abstract class GenerateIconsAction : WorkAction<GenerateIconsActionParameters> {
 
-        @OptIn(ExperimentalPathApi::class)
         override fun execute() {
             val stateOutputFolder = parameters.stateOutputFolder.get()
             val changeType = parameters.changeType.get()
@@ -90,23 +90,19 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
             val outputFolder = parameters.outputFolder.get()
             val iconFieldType = parameters.iconFieldType.get()
 
-            val stateFile = stateOutputFolder.file(changeFile.path.replace("/", "_")).asFile
-            val state = State.resolve(stateFile)
+            val state = State.resolve(stateOutputFolder, changeFile)
             when (changeType) {
                 ChangeType.ADDED -> {
                     val iconPaths = changeFile.saveIcons(outputFolder, iconFieldType)
                     state.recordOutputs(iconPaths)
-                    state.save(stateFile)
                 }
                 ChangeType.MODIFIED -> {
                     state.cleanOutputs() // we are going to reprocess all the outputs of this file
                     val iconPaths = changeFile.saveIcons(outputFolder, iconFieldType)
                     state.recordOutputs(iconPaths)
-                    state.save(stateFile)
                 }
                 ChangeType.REMOVED -> {
-                    state.cleanOutputs()
-                    stateFile.toPath().deleteIfExists()
+                    state.cleanOutputs(cleanupStateFile = true)
                 }
             }
         }
@@ -120,7 +116,6 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
             return outputToIcon.keys.toList()
         }
 
-        @OptIn(ExperimentalPathApi::class)
         private fun Icon.save(to: File) {
             to.toPath().parent.createDirectories()
             to.writeBytes(this.content)
@@ -128,36 +123,50 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
     }
 }
 
+@OptIn(ExperimentalPathApi::class)
 private data class State(
-    var producedOutputs: List<String> = listOf(),
+    val file: File,
+    var producedOutputs: List<String>,
 ) {
 
-    @OptIn(ExperimentalPathApi::class)
-    fun cleanOutputs() {
+    fun cleanOutputs(cleanupStateFile: Boolean = false) {
         producedOutputs.forEach { Path.of(it).deleteIfExists() }
+        if (cleanupStateFile) {
+            file.toPath().deleteIfExists()
+        } else {
+            recordOutputs(emptyList())
+        }
     }
 
     fun recordOutputs(outputs: List<File>) {
         producedOutputs = outputs.map { it.toPath().toString() }
+        file.writeText(serialize())
     }
 
     private fun serialize() = producedOutputs.joinToString(serilizingSeparator)
 
-    fun save(to: File) {
-        to.writeText(serialize())
-    }
-
     companion object {
         const val serilizingSeparator: String = "\n"
 
-        private fun deserialize(raw: String): State = State(producedOutputs = raw.split(serilizingSeparator))
+        private fun deserialize(stateFile: File): State = State(
+            file = stateFile,
+            producedOutputs = stateFile.readText().split(serilizingSeparator)
+        )
 
-        @OptIn(ExperimentalPathApi::class)
-        fun resolve(f: File): State = if (f.exists()) {
-            deserialize(f.readText())
-        } else {
-            f.toPath().parent.createDirectories()
-            State()
+        fun resolve(stateOutputFolder: Directory, inputFile: File): State {
+            val stateFileName = generateStateFileName(inputFile)
+            val stateFile = stateOutputFolder.file(stateFileName).asFile
+            return if (stateFile.exists()) {
+                deserialize(stateFile)
+            } else {
+                stateFile.toPath().parent.createDirectories()
+                State(
+                    file = stateFile,
+                    producedOutputs = emptyList(),
+                )
+            }
         }
+
+        private fun generateStateFileName(inputFile: File): String = inputFile.path.replace("/", "_")
     }
 }
