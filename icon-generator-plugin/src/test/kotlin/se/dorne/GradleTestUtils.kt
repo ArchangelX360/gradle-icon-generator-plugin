@@ -18,10 +18,10 @@ data class ProjectConfiguration(
  * Creates a temporary project directory
  *
  * Temporary project is configured with:
- *  - sources from the test resource directory of name projectName (copied recursively)
+ *  - sources from the test resource directory of name [projectName] (copied recursively)
  *  - a `settings.gradle.kts` file configured with an isolated cache directory to allow test isolation
- *  - a `build.gradle.kts` file configuring the `icon-generator-plugin` with configuration from ProjectConfiguration configuration
- *  - a `gradle.properties` file configured with some parameters of the ProjectConfiguration configuration
+ *  - a `build.gradle.kts` file configuring the `icon-generator-plugin` with configuration from [configuration]
+ *  - a `gradle.properties` file configured with some parameters of the [configuration]
  */
 fun getTemporaryProjectDirectory(projectName: String, configuration: ProjectConfiguration): File {
     val projectDirectory = getProjectDirectory(projectName)
