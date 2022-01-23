@@ -3,7 +3,9 @@ package se.dorne
 import org.apache.xerces.impl.dv.util.Base64
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.nio.file.Path
 import kotlin.test.assertEquals
@@ -259,6 +261,42 @@ internal class IconGeneratorPluginTest {
             "${projectDirectory}/build/icons/foo/ParentIcons/AIcon.png",
         )
         assertEquals(expectedAfterDeletion, fetchGeneratedIconsPaths(projectDirectory.toPath()))
+    }
+
+    @Test
+    fun `should fail to configure plugin with restricted output directory`() {
+        val projectDirectory = getTemporaryProjectDirectory(
+            "example-project-tiny", ProjectConfiguration(
+                sourceDir = "src",
+                outputDir = "icon-generator-plugin/icon-states"
+            )
+        )
+
+        assertThrows<UnexpectedBuildFailure> {
+            GradleRunner.create()
+                .withProjectDir(projectDirectory)
+                .withPluginClasspath() // make `icon-generator-plugin` available
+                .withArguments(generateIconTaskName)
+                .build()
+        }
+    }
+
+    @Test
+    fun `should fail to configure plugin with restricted output subdirectory`() {
+        val projectDirectory = getTemporaryProjectDirectory(
+            "example-project-tiny", ProjectConfiguration(
+                sourceDir = "src",
+                outputDir = "icon-generator-plugin/icon-states/something"
+            )
+        )
+
+        assertThrows<UnexpectedBuildFailure> {
+            GradleRunner.create()
+                .withProjectDir(projectDirectory)
+                .withPluginClasspath() // make `icon-generator-plugin` available
+                .withArguments(generateIconTaskName)
+                .build()
+        }
     }
 
     private fun fetchGeneratedIconsPaths(projectDirectory: Path) = fetchGeneratedIcons(projectDirectory)
