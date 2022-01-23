@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Path
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class IconGeneratorPluginTest {
     private val generateIconTaskName = "generateIcons"
@@ -19,12 +20,12 @@ internal class IconGeneratorPluginTest {
             )
         )
 
-        val result = GradleRunner.create()
+        val initialRun = GradleRunner.create()
             .withProjectDir(projectDirectory)
             .withPluginClasspath() // make `icon-generator-plugin` available
             .withArguments(generateIconTaskName)
             .build()
-        assertEquals(TaskOutcome.SUCCESS, result.task(":${generateIconTaskName}")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, initialRun.task(":${generateIconTaskName}")?.outcome)
 
         val expected = mapOf(
             "${projectDirectory}/build/icons/foo/AIcons/AIcon.png" to "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/AP+gvaeTAAAAeElEQVRIiWNgGAVDHXTQ2oL/tLbkP60t+c9AY0tghv+G0g34FB9FcxEpOJwYS8g1/D9UfwiSJViDC1kxuQDDEiYKDUQHjEjs7+iSlAZRKJLr67HZfpgCC4iKZHIAScmUEgtwBgu1LKCJ4TALaGY4AwMNwnwUUB8AAGoAZWQIwMYBAAAAAElFTkSuQmCC",
@@ -110,10 +111,10 @@ internal class IconGeneratorPluginTest {
             .withProjectDir(projectDirectory)
             .withPluginClasspath() // make `icon-generator-plugin` available
 
-        val result = runnerBuilder
+        val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
             .build()
-        assertEquals(TaskOutcome.SUCCESS, result.task(":${generateIconTaskName}")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, initialRun.task(":${generateIconTaskName}")?.outcome)
 
         val expected = setOf(
             "${projectDirectory}/build/icons/foo/AIcons/AIcon.png",
@@ -139,10 +140,10 @@ internal class IconGeneratorPluginTest {
             .withProjectDir(projectDirectory)
             .withPluginClasspath() // make `icon-generator-plugin` available
 
-        val result = runnerBuilder
+        val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
             .build()
-        assertEquals(TaskOutcome.SUCCESS, result.task(":${generateIconTaskName}")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, initialRun.task(":${generateIconTaskName}")?.outcome)
 
         val expected = setOf(
             "${projectDirectory}/build/icons/foo/OtherIcons/DIcon.png",
@@ -173,10 +174,10 @@ internal class IconGeneratorPluginTest {
             .withProjectDir(projectDirectory)
             .withPluginClasspath() // make `icon-generator-plugin` available
 
-        val result = runnerBuilder
+        val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
             .build()
-        assertEquals(TaskOutcome.SUCCESS, result.task(":${generateIconTaskName}")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, initialRun.task(":${generateIconTaskName}")?.outcome)
 
         val expected = setOf(
             "${projectDirectory}/build/icons/foo/AIcons/AIcon.png",
@@ -200,11 +201,64 @@ internal class IconGeneratorPluginTest {
             .withProjectDir(projectDirectory)
             .withPluginClasspath() // make `icon-generator-plugin` available
 
-        val result = runnerBuilder
+        val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
             .build()
-        assertEquals(TaskOutcome.SUCCESS, result.task(":${generateIconTaskName}")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, initialRun.task(":${generateIconTaskName}")?.outcome)
         assertEquals(emptySet<String>(), fetchGeneratedIconsPaths(projectDirectory.toPath()))
+    }
+
+    @Test
+    fun `should cleanup icons of deleted source file`() {
+        val projectDirectory = getTemporaryProjectDirectory(
+            "example-project-minimal", ProjectConfiguration(
+                sourceDir = "src",
+            )
+        )
+
+        val runnerBuilder = GradleRunner.create()
+            .withProjectDir(projectDirectory)
+            .withPluginClasspath() // make `icon-generator-plugin` available
+
+        val initialRun = runnerBuilder
+            .withArguments(generateIconTaskName)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, initialRun.task(":${generateIconTaskName}")?.outcome)
+
+        val expected = setOf(
+            "${projectDirectory}/build/icons/foo/OtherIcons/DIcon.png",
+            "${projectDirectory}/build/icons/foo/OtherIcons/CIcon.png",
+            "${projectDirectory}/build/icons/foo/OtherIcons/BIcon.png",
+            "${projectDirectory}/build/icons/foo/AIcons/AIcon.png",
+            "${projectDirectory}/build/icons/foo/bar/AIcons/AIcon.png",
+            "${projectDirectory}/build/icons/bar/AIcons/AIcon.png",
+            "${projectDirectory}/build/icons/foo/ParentIcons/Nested/DIcon.png",
+            "${projectDirectory}/build/icons/foo/ParentIcons/Nested/CIcon.png",
+            "${projectDirectory}/build/icons/foo/ParentIcons/Nested/BIcon.png",
+            "${projectDirectory}/build/icons/foo/ParentIcons/AIcon.png",
+            "${projectDirectory}/build/icons/foo/SiblingIcons/AIcon.png",
+        )
+        assertEquals(expected, fetchGeneratedIconsPaths(projectDirectory.toPath()))
+
+        // Delete some sources
+        val deleted = File("${projectDirectory}/src/main/java/foo/SiblingIcons.java").delete()
+        assertTrue(deleted)
+
+        val secondRun = runnerBuilder
+            .withArguments(generateIconTaskName)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, secondRun.task(":${generateIconTaskName}")?.outcome)
+
+        val expectedAfterDeletion = setOf(
+            "${projectDirectory}/build/icons/foo/AIcons/AIcon.png",
+            "${projectDirectory}/build/icons/foo/bar/AIcons/AIcon.png",
+            "${projectDirectory}/build/icons/bar/AIcons/AIcon.png",
+            "${projectDirectory}/build/icons/foo/ParentIcons/Nested/DIcon.png",
+            "${projectDirectory}/build/icons/foo/ParentIcons/Nested/CIcon.png",
+            "${projectDirectory}/build/icons/foo/ParentIcons/Nested/BIcon.png",
+            "${projectDirectory}/build/icons/foo/ParentIcons/AIcon.png",
+        )
+        assertEquals(expectedAfterDeletion, fetchGeneratedIconsPaths(projectDirectory.toPath()))
     }
 
     private fun fetchGeneratedIconsPaths(projectDirectory: Path) = fetchGeneratedIcons(projectDirectory)
