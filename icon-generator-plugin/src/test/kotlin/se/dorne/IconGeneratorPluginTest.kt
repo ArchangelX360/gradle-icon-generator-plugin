@@ -7,7 +7,9 @@ import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.attribute.BasicFileAttributes
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -264,6 +266,112 @@ internal class IconGeneratorPluginTest {
     }
 
     @Test
+    fun `should not cleanup icons that are still in the source file`() {
+        val projectDirectory = getTemporaryProjectDirectory(
+            "example-project-tiny", ProjectConfiguration(
+                sourceDir = "src",
+            )
+        )
+
+        val runnerBuilder = GradleRunner.create()
+            .withProjectDir(projectDirectory)
+            .withPluginClasspath() // make `icon-generator-plugin` available
+
+        val initialRun = runnerBuilder
+            .withArguments(generateIconTaskName)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, initialRun.task(":${generateIconTaskName}")?.outcome)
+        val iconAFile = Path.of("${projectDirectory}/build/icons/foo/AIcons/AIcon.png")
+        assertTrue(fetchGeneratedIconsPaths(projectDirectory.toPath()).contains(iconAFile.toString()))
+
+        val creationTimeOfAIconOutput = iconAFile.creationTimeInSeconds
+        // creation time for files only supports up to the second granularity
+        // we are forcing the two runs to be separated by at least 1 second to be able to verify if the icon output file
+        // has been re-created or not
+        Thread.sleep(1000)
+
+        // change the source file
+        val sourceFile = File("${projectDirectory}/src/main/java/foo/AIcons.java")
+        sourceFile.appendText("\n\n\n")
+
+        val secondRun = runnerBuilder
+            .withArguments(generateIconTaskName)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, secondRun.task(":${generateIconTaskName}")?.outcome)
+        assertEquals(
+            creationTimeOfAIconOutput,
+            iconAFile.creationTimeInSeconds,
+            "untouched classes icon files are reused, not regenerated"
+        )
+    }
+
+    @Test
+    fun `should create or remove icons when modifying the source file`() {
+        val projectDirectory = getTemporaryProjectDirectory(
+            "example-project-tiny", ProjectConfiguration(
+                sourceDir = "src",
+            )
+        )
+
+        val runnerBuilder = GradleRunner.create()
+            .withProjectDir(projectDirectory)
+            .withPluginClasspath() // make `icon-generator-plugin` available
+
+        val initialRun = runnerBuilder
+            .withArguments(generateIconTaskName)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, initialRun.task(":${generateIconTaskName}")?.outcome)
+        assertEquals(
+            setOf(
+                "${projectDirectory}/build/icons/foo/AIcons/AIcon.png"
+            ),
+            fetchGeneratedIconsPaths(projectDirectory.toPath()),
+        )
+
+        // add a class to the source file
+        val sourceFile = File("${projectDirectory}/src/main/java/foo/AIcons.java")
+        sourceFile.appendText(
+            """
+            class BIcons {
+                public final static String BIcon = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/AP+gvaeTAAAAeElEQVRIiWNgGAVDHXTQ2oL/tLbkP60t+c9AY0tghv+G0g34FB9FcxEpOJwYS8g1/D9UfwiSJViDC1kxuQDDEiYKDUQHjEjs7+iSlAZRKJLr67HZfpgCC4iKZHIAScmUEgtwBgu1LKCJ4TALaGY4AwMNwnwUUB8AAGoAZWQIwMYBAAAAAElFTkSuQmCC";
+            }
+        """.trimIndent()
+        )
+
+        val secondRun = runnerBuilder
+            .withArguments(generateIconTaskName)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, secondRun.task(":${generateIconTaskName}")?.outcome)
+        assertEquals(
+            setOf(
+                "${projectDirectory}/build/icons/foo/AIcons/AIcon.png",
+                "${projectDirectory}/build/icons/foo/BIcons/BIcon.png", // new icon has been generated
+            ),
+            fetchGeneratedIconsPaths(projectDirectory.toPath()),
+        )
+
+        // renaming class
+        val content = sourceFile.readText()
+        val modifiedContent = content
+            .replace("BIcons", "CIcons")
+            .replace("BIcon", "CIcon")
+        sourceFile.writeText(modifiedContent)
+
+        val thirdRun = runnerBuilder
+            .withArguments(generateIconTaskName)
+            .build()
+        assertEquals(TaskOutcome.SUCCESS, thirdRun.task(":${generateIconTaskName}")?.outcome)
+        assertEquals(
+            setOf(
+                "${projectDirectory}/build/icons/foo/AIcons/AIcon.png",
+                // BIcons file has been cleaned up
+                "${projectDirectory}/build/icons/foo/CIcons/CIcon.png"
+            ),
+            fetchGeneratedIconsPaths(projectDirectory.toPath()),
+        )
+    }
+
+    @Test
     fun `should fail to configure plugin with restricted output directory`() {
         val projectDirectory = getTemporaryProjectDirectory(
             "example-project-tiny", ProjectConfiguration(
@@ -312,4 +420,10 @@ internal class IconGeneratorPluginTest {
             .filter { it.isFile }
             .toSet()
     }
+
+    private val Path.creationTimeInSeconds
+        get() = Files
+            .readAttributes(this, BasicFileAttributes::class.java)
+            .creationTime()
+            .toInstant()
 }

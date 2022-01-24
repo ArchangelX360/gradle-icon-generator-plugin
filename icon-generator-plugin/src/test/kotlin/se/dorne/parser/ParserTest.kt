@@ -12,12 +12,12 @@ internal class ParserTest {
         val icons = extractBase64Icons(javaFile, "String")
         assertEquals(
             setOf(
-                "foo/Parent/AIcon.png",
-                "foo/Parent/Nested/BIcon.png",
-                "foo/Parent/Nested/CIcon.png",
-                "foo/Two/TwoIcon.png",
+                listOf("foo.Parent", "AIcon"),
+                listOf("foo.Parent.Nested", "BIcon"),
+                listOf("foo.Parent.Nested", "CIcon"),
+                listOf("foo.Two", "TwoIcon"),
             ),
-            icons.map { it.relativePath.toString() }.toSet()
+            icons.map { listOf(it.javaClassFullyQualifiedName, it.fieldName) }.toSet()
         )
     }
 

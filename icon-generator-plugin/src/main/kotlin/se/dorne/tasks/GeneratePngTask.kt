@@ -89,79 +89,80 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
 
             val state = State.resolve(stateOutputFolder, changeFile)
             when (changeType) {
-                ChangeType.ADDED -> {
-                    val iconPaths = changeFile.saveIcons(outputFolder, iconFieldType)
-                    state.recordOutputs(iconPaths)
-                }
-                ChangeType.MODIFIED -> {
-                    state.cleanOutputs() // we are going to reprocess all the outputs of this file
-                    val iconPaths = changeFile.saveIcons(outputFolder, iconFieldType)
-                    state.recordOutputs(iconPaths)
+                ChangeType.ADDED, ChangeType.MODIFIED -> {
+                    val icons = extractBase64Icons(changeFile, iconFieldType)
+                        .associateBy { it.outputPath(outputFolder) }
+                    // create/update the added/modified icons
+                    icons.forEach { (filepath, icon) -> icon.saveTo(filepath) }
+                    // update state and cleans up stale icons
+                    state.updateState(icons.keys)
                 }
                 ChangeType.REMOVED -> {
-                    state.cleanOutputs(cleanupStateFile = true)
+                    state.updateState(emptySet())
                 }
             }
         }
 
-        private fun File.saveIcons(to: Directory, iconFieldType: String): List<File> {
-            val icons = extractBase64Icons(this, iconFieldType)
-            val outputToIcon = icons.associateBy {
-                to.file(it.relativePath.toString()).asFile
-            }
-            outputToIcon.forEach { (outputFile, icon) -> icon.save(outputFile) }
-            return outputToIcon.keys.toList()
+        private fun Icon.saveTo(filepath: Path) {
+            filepath.parent.createDirectories()
+            filepath.toFile().writeBytes(this.content)
         }
 
-        private fun Icon.save(to: File) {
-            to.toPath().parent.createDirectories()
-            to.writeBytes(this.content)
+        private fun Icon.outputPath(outputDirectory: Directory): Path {
+            val prefix = javaClassFullyQualifiedName.replace(".", "/")
+            val outputRelativePath = Path.of(prefix, "$fieldName.${extension}")
+            return outputDirectory.file(outputRelativePath.toString()).asFile.toPath()
         }
     }
 }
 
 @OptIn(ExperimentalPathApi::class)
 private data class State(
-    val file: File,
-    var producedOutputs: List<String>,
+    private val file: File,
 ) {
+    private val serializingSeparator: String = "\n"
 
-    fun cleanOutputs(cleanupStateFile: Boolean = false) {
-        producedOutputs.forEach { Path.of(it).deleteIfExists() }
-        if (cleanupStateFile) {
-            file.toPath().deleteIfExists()
+    /**
+     * Updates the state of the [file] and cleans up stale icons from previous run.
+     *
+     * An icon is considered stale if it is in the current state (before the update) but not in the [newOutputs].
+     * If all the icons are stale, then the state file will be cleaned up as well to prevent garbage to pile up in the
+     * build directory.
+     */
+    fun updateState(newOutputs: Set<Path>) {
+        val oldOutputs = deserialize()
+        val staleIcons = oldOutputs.subtract(newOutputs)
+        staleIcons.forEach { it.deleteIfExists() }
+        if (newOutputs.isNotEmpty()) {
+            file.toPath().parent.createDirectories()
+            file.writeText(serialize(newOutputs))
         } else {
-            recordOutputs(emptyList())
+            file.toPath().deleteIfExists()
         }
     }
 
-    fun recordOutputs(outputs: List<File>) {
-        producedOutputs = outputs.map { it.toPath().toString() }
-        file.writeText(serialize())
+    private fun deserialize(): Set<Path> {
+        if (file.exists()) {
+            val content = file.readText()
+            if (content.isBlank()) {
+                return emptySet()
+            }
+            return content.split(serializingSeparator).map { Path.of(it) }.toSet()
+        }
+        return emptySet()
     }
 
-    private fun serialize() = producedOutputs.joinToString(serilizingSeparator)
+    private fun serialize(outputs: Set<Path>) = outputs.joinToString(serializingSeparator)
 
     companion object {
-        const val serilizingSeparator: String = "\n"
 
-        private fun deserialize(stateFile: File): State = State(
-            file = stateFile,
-            producedOutputs = stateFile.readText().split(serilizingSeparator)
-        )
-
+        /**
+         * Instantiate a State for the source file [inputFile], declaring it in the [stateOutputFolder] directory
+         */
         fun resolve(stateOutputFolder: Directory, inputFile: File): State {
             val stateFileName = generateStateFileName(inputFile)
             val stateFile = stateOutputFolder.file(stateFileName).asFile
-            return if (stateFile.exists()) {
-                deserialize(stateFile)
-            } else {
-                stateFile.toPath().parent.createDirectories()
-                State(
-                    file = stateFile,
-                    producedOutputs = emptyList(),
-                )
-            }
+            return State(file = stateFile)
         }
 
         private fun generateStateFileName(inputFile: File): String = inputFile.path.replace("/", "_")
