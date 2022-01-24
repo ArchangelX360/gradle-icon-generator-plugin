@@ -60,6 +60,9 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
                 workQueue.submit(
                     GenerateIconsAction::class.java
                 ) {
+                    // `it` is unresolved here, due to a bug related to https://youtrack.jetbrains.com/issue/KTIJ-14684
+                    // if you are on IntelliJ IDEA, don't mind the red colours, the code actually compiles and does the
+                    // right thing
                     this.stateOutputFolder.set(stateOutputFolder)
                     this.changeType.set(change.changeType)
                     this.changeFile.set(change.file)
