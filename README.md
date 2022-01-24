@@ -137,10 +137,8 @@ The plugin uses several optimisations
 ### Known limitations
 
 - Empty output directory of deleted icons are not cleaned up
-- Incrementality works at file level, not at output icon level. Meaning that a change in a file will clean up all
-  previously generated icons _for this file_, and regenerate them. The parsing of the input file is unavoidable, so
-  having icon level granularity would avoid some base64 decoding for fields that did not change to the tradeoff of
-  having a mechanism to quickly identify is the base64 string of the field is different from the previous run.
+- Incrementality works at file level, not at output icon level. A change in a file will clean up stale deleted icons
+  only but will regenerate icons that are still in the code, whether they were part of the modification or not.
 
 ### Decisions
 
