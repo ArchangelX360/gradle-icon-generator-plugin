@@ -1,6 +1,6 @@
 plugins {
     id("se.dorne.icon-generator") version "0.0.1"
-    id("java")
+    // id("java")
 }
 
 generateIconsForSources {

@@ -1,4 +1,4 @@
-name: "CI"
+name: "Test"
 
 on: push
 
@@ -13,4 +13,4 @@ jobs:
           java-version: '11'
           cache: 'gradle'
       - name: Run plugin tests
-        run: ./gradlew :icon-generator-plugin:test --no-daemon
+        run: ./gradlew test --no-daemon

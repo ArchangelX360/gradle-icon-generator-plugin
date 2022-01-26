@@ -140,8 +140,8 @@ The plugin uses several optimisations
 - Empty output directory of deleted icons are not cleaned up
 - Incrementality works at file level, not at output icon level. A change in a file will clean up previously generated
   icons and regenerate the ones that are still in the code, whether they were part of the modification or not.
-- The source code given in input must compile in order to avoid any possible conflicts in the icons output (as 
-  generation is based on the `fully_qualified_name_of_enclosing_class_of_the_field`)
+- The syntactically correct source code given in input must _compile_ in order to avoid any possible conflicts in the
+  icons output (as generation is based on the `fully_qualified_name_of_enclosing_class_of_the_field`)
 
 ### Decisions
 

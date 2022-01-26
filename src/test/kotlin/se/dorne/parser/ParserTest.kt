@@ -172,24 +172,6 @@ internal class ParserTest {
         assertTrue(icons.isEmpty())
     }
 
-    @Test
-    fun `should ignore invalid java file with 2 top level public classes`() {
-        val sourceFile = createTemporarySourceFile(
-            """
-            package foo;
-
-            public class Example {
-                public final String AIcon = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/AP+gvaeTAAAAeElEQVRIiWNgGAVDHXTQ2oL/tLbkP60t+c9AY0tghv+G0g34FB9FcxEpOJwYS8g1/D9UfwiSJViDC1kxuQDDEiYKDUQHjEjs7+iSlAZRKJLr67HZfpgCC4iKZHIAScmUEgtwBgu1LKCJ4TALaGY4AwMNwnwUUB8AAGoAZWQIwMYBAAAAAElFTkSuQmCC";
-            }
-            public class Example2 {
-                public final String AIcon = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/AP+gvaeTAAAAeElEQVRIiWNgGAVDHXTQ2oL/tLbkP60t+c9AY0tghv+G0g34FB9FcxEpOJwYS8g1/D9UfwiSJViDC1kxuQDDEiYKDUQHjEjs7+iSlAZRKJLr67HZfpgCC4iKZHIAScmUEgtwBgu1LKCJ4TALaGY4AwMNwnwUUB8AAGoAZWQIwMYBAAAAAElFTkSuQmCC";
-            }
-        """.trimIndent()
-        )
-        val icons = extractBase64Icons(sourceFile, "String")
-        assertTrue(icons.isEmpty())
-    }
-
     private fun createTemporarySourceFile(content: String, nameSuffix: String = "Example.java"): File {
         val sourceFile = File.createTempFile("ParserTest", nameSuffix)
         sourceFile.deleteOnExit()
