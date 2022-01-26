@@ -141,7 +141,7 @@ internal class ParserTest {
     }
 
     @Test
-    fun `should ignore top-level non-public class`() {
+    fun `should parse top-level non-public class`() {
         val sourceFile = createTemporarySourceFile(
             """
             package foo;
@@ -152,7 +152,8 @@ internal class ParserTest {
         """.trimIndent()
         )
         val icons = extractBase64Icons(sourceFile, "String")
-        assertTrue(icons.isEmpty())
+        assertNotNull(icons.find { it.javaClassFullyQualifiedName == "foo.Example" && it.fieldName == "SomeIcon" })
+        assertEquals(1, icons.size)
     }
 
     @Test

@@ -25,6 +25,8 @@ abstract class GeneratePngExtension {
 
 private val defaultFilePattern = PatternSet().include("**/*Icons.java")
 private const val defaultIconDirectoryOutput = "icons"
+private const val defaultStateStoreDirectory = "icon-generator/icon-states"
+private const val defaultIconType = "String"
 
 class IconGeneratorPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -37,11 +39,21 @@ class IconGeneratorPlugin : Plugin<Project> {
             // the pattern filtering here avoid time-consuming "fingerprinting" step for the very first build
             val pattern = sourceExtension.patternFilterable.orNull ?: defaultFilePattern
             sourceFiles.setFrom(sourceExtension.sources.asFileTree.matching(pattern))
-            iconFieldType.set(sourceExtension.iconFieldType)
+
+            val fieldType = sourceExtension.iconFieldType.orNull ?: defaultIconType
+            iconFieldType.set(fieldType)
 
             val output = sourceExtension.outputDirectory.orNull
                 ?: project.layout.buildDirectory.dir(defaultIconDirectoryOutput).get()
             outputDir.set(output)
+
+            val stateOutput = sourceExtension.internalStateDirectory.orNull
+                ?: project.layout.buildDirectory.dir(defaultStateStoreDirectory).get()
+            stateOutputDir.set(stateOutput)
+
+            if (output.toString().startsWith(stateOutput.toString())) {
+                error("`outputDirectory` cannot use a directory $stateOutput or any of its subdirectories, please choose output directory or set `internalStateDirectory`")
+            }
         }
 
         project.tasks.register<Delete>("cleanIcons") {
