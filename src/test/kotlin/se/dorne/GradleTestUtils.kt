@@ -68,7 +68,7 @@ private fun createGradleBuildFile(
 
     val content = """
             plugins {
-                id("icon-generator-plugin")
+                id("se.dorne.icon-generator")
                 id("java")
             }
 

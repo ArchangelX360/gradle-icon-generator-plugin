@@ -1,46 +1,23 @@
-# jetbrains-assignment
+# gradle-icon-generator-plugin
 
 A Gradle plugin to generate PNG files from Base64 encoded strings declared in Java sources.
 
 ## Initialise repository
 
 ```
-git clone https://github.com/ArchangelX360/jetbrains-assignment.git
-cd jetbrains-assignment
+git clone https://github.com/ArchangelX360/gradle-icon-generator-plugin.git
+cd gradle-icon-generator-plugin
 
 # to pull IntelliJ community repository for witnessing incremental builds better
 git submodule update --init --recursive
 ```
-
-## Repository structure
-
-The Gradle plugin which constitute the main deliverable of this assignement is located under `icon-generator-plugin`.
-
-```
-├── icon-generator-plugin         #
-│   ├── build.gradle              # deliverable of the assignement
-│   └── src                       #
-└── examples
-    ├── example-project-intellij
-    │   ├── build.gradle
-    │   └── intellij-community    # submodule of IntelliJ IDEA community git repo to showcase the plugin's performance
-    └── example-project-minimal
-        ├── build.gradle
-        └── src                   # very simple project to tryout the plugin
-
-```
-
-The `examples` directory is a playground to try out the plugin, editing, adding, removing files and running the plugin 
-tasks.
-For the sake of simplicity for reviewing the assignment, `icon-generator-plugin` is included with `includeBuild` to 
-allow usage as a `buildscript` dependency for the example projects. 
 
 ## How to use the plugin
 
 Set your plugin block like such:
 ```kotlin
 plugins {
-    id("icon-generator-plugin")
+    id("se.dorne.icon-generator")
 }
 ```
 
@@ -77,18 +54,6 @@ generateIconsForSources {
         PatternSet()
             .include("**/*.java")
     )
-}
-```
-
-### For example projects
-
-Example projects can use the plugin by declaring, in addition to the configuration of the previous sections, a 
-`buildscript` delegate:
-```kotlin
-buildscript {
-    dependencies {
-        classpath("se.dorne:icon-generator-plugin")
-    }
 }
 ```
 

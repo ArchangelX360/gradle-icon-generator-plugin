@@ -3,9 +3,7 @@ package se.dorne
 import org.apache.xerces.impl.dv.util.Base64
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.gradle.testkit.runner.UnexpectedBuildFailure
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
