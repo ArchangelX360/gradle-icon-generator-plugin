@@ -97,7 +97,7 @@ fun extractBase64Icons(javaFile: File, type: String): List<Icon> {
                 )
             }
     } catch (e: ParseProblemException) {
-        LOG.warn("ignoring file ${javaFile}, reason: not a valid Java file")
+        LOG.warn("ignoring file ${javaFile}, reason: not a valid Java file:\n  - ${e.problems.joinToString("\n  - ") { it.verboseMessage }}}")
         return emptyList()
     }
 }
