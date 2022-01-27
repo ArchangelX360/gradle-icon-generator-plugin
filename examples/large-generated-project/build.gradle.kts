@@ -114,8 +114,10 @@ data class SourceFileGenerationConfiguration(
                 }
 
                 content.save("${project.projectDir}/src/main/java/${c.fullyQualifiedName.get().replace(".", "/")}.java")
-            } catch (e: Exception) {
+            } catch (e: com.github.javaparser.ParseProblemException) {
                 // if the random generation created some weird artefact like keywords or incorrect Java, we just discard the file generation
+                logger.warn("file generation failed, ignoring this source generation, reasons:\n  - ${e.problems.joinToString("\n  - ") { it.verboseMessage }}}")
+            } catch (e: Exception) {
                 logger.warn("file generation failed: $e")
             }
         }
