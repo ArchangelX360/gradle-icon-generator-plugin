@@ -38,11 +38,10 @@ abstract class GenerateIconsAction : WorkAction<GenerateIconsActionParameters> {
                     .associateBy { it.outputPath(outputDirectory) }
                 // create/update the added/modified icons
                 icons.forEach { (filepath, icon) -> icon.saveTo(filepath) }
-                // update state and cleans up stale icons
-                state.updateState(icons.keys)
+                state.updateStateAndCleanUpStaleOutputs(icons.keys)
             }
             ChangeType.REMOVED -> {
-                state.updateState(emptySet())
+                state.updateStateAndCleanUpStaleOutputs(emptySet())
             }
         }
     }

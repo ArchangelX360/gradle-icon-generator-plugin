@@ -20,7 +20,7 @@ data class GenerateIconState(
      * If all the icons are stale, then the state file will be cleaned up as well to prevent garbage to pile up in the
      * build directory.
      */
-    fun updateState(newOutputs: Set<Path>) {
+    fun updateStateAndCleanUpStaleOutputs(newOutputs: Set<Path>) {
         val oldOutputs = deserialize()
 
         val staleIcons = oldOutputs.subtract(newOutputs)
