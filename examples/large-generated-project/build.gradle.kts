@@ -22,12 +22,17 @@ generateIconsForSources {
 
 // --- GENERATION OF SOURCES TASKS ---
 
-tasks.register<DefaultTask>("generateIntelliJIDEACommunityLikeRepository") {
+tasks.register<DefaultTask>("generateSources") {
     group = "generation"
-    description = "generate a large amount of Java classes that contains Base64 icons"
+    description = "generate sources that contains Base64 icons and some other irrelevant sources"
+
+    val iconSourcesCount = project.findProperty("iconSourcesCount")?.toString()?.toIntOrNull()
+        ?: error("iconSourcesCount must be set and a valid integer, please use -PiconSourcesCount=<integer>")
+    val irrelevantSourcesCount = project.findProperty("irrelevantSourcesCount")?.toString()?.toIntOrNull()
+        ?: error("irrelevantSourcesCount  must be set and a valid integer, please use -PirrelevantSourcesCount=<integer>")
 
     val sourceFilecConfiguration = SourceFileGenerationConfiguration(
-        numberOfSources = 54, // IntelliJ IDEA has 54 compatible sources *Icons.java
+        numberOfSources = iconSourcesCount,
         maxPackageDepth = 2,
         maxFieldPerClass = 5,
         packageReusePercentage = 95.0,
@@ -35,34 +40,9 @@ tasks.register<DefaultTask>("generateIntelliJIDEACommunityLikeRepository") {
     )
 
     val junkConfiguration = JunkConfiguration(
-        numberOfFiles = 231023, // IntelliJ IDEA has 231023 files that are not *Icons.java
+        numberOfFiles = irrelevantSourcesCount,
         numberOfJunkOnlyDirectories = 27,// IntelliJ IDEA has 27 folders that are not containing *Icons.java files
         junkFileInRestOfProjectPercentage = 0.1, // 0.1% of the junkfiles will land in some directory that contains *Icons.java sources
-    )
-
-    doLast {
-        sourceFilecConfiguration.generateSources()
-        junkConfiguration.generateJunk()
-    }
-}
-
-
-tasks.register<DefaultTask>("generateLargeRepository") {
-    group = "generation"
-    description = "generate a repository with a large amount of Java classes that contains Base64 icons, and few junk"
-
-    val sourceFilecConfiguration = SourceFileGenerationConfiguration(
-        numberOfSources = 2000,
-        maxPackageDepth = 2,
-        maxFieldPerClass = 5,
-        packageReusePercentage = 97.0,
-        nestedClassPercentage = 50.0,
-    )
-
-    val junkConfiguration = JunkConfiguration(
-        numberOfFiles = 100,
-        numberOfJunkOnlyDirectories = 2,
-        junkFileInRestOfProjectPercentage = 2.0, // 2% of the junkfiles will land in some directory that contains *Icons.java sources
     )
 
     doLast {

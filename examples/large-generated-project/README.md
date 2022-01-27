@@ -30,17 +30,17 @@ git clone https://github.com/ArchangelX360/gradle-icon-generator-plugin.git
 cd gradle-icon-generator-plugin
 ```
 
-### Option 1: the `intellij-community`-like repository
+### Run 1: the `intellij-community`-like repository
 
-Running the example for `intellij-community`-like repository:
+Running the example reproducing an `intellij-community`-like repository:
 
 ```
 # (optional) cleanup any previously generated sources and outputs
 ./gradlew :examples:large-generated-project:cleanIcons
 ./gradlew :examples:large-generated-project:cleanGeneratedSources
 
-# generate the repository
-./gradlew :examples:large-generated-project:generateIntelliJIDEACommunityLikeRepository
+# generate the repository, IntelliJ IDEA community has 54 source files containing icons, and 231023 other files
+./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=54 -PirrelevantSourcesCount=231023
 
 # Run the plugin's icon generation
 ./gradlew :examples:large-generated-project:generateIcons
@@ -52,9 +52,10 @@ If the task was configured differently and the matching done inside the task ins
 before they are pass to the `generateIcons` task, the fingerprinting could take an observed 3 times additional time to
 execute in the IntelliJ example!
 
-### Option 2: the large repository
+### Run 2: a large repository
 
-Running the example for `intellij-community`-like repository:
+A more interesting stress test is to increase the number of `iconSourcesCount`, to see how the plugin efficiently
+parallelize the processing of a large number of matched sources.
 
 ```
 # (optional) cleanup any previously generated sources and outputs
@@ -62,30 +63,34 @@ Running the example for `intellij-community`-like repository:
 ./gradlew :examples:large-generated-project:cleanGeneratedSources
 
 # generate the repository
-./gradlew :examples:large-generated-project:generateLargeRepository
+./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
 
 # Run the plugin's icon generation
 ./gradlew :examples:large-generated-project:generateIcons   
 ```
 
-We invite you to run also this incrementality test:
+#### Incremental comparison test
+
+The `generateLargeRepository` (and `generateIntelliJIDEACommunityLikeRepository` for that matter) does not clean their
+generated sources between two runs, an explicit `cleanGeneratedSources` is needed.
+This is made on purpose for some additional tests to be run, for example, the incremental comparison test.
+
+We invite you to run also this incremental comparison test:
 ```
 # Generation for 3X
 ./gradlew :examples:large-generated-project:cleanIcons
 ./gradlew :examples:large-generated-project:cleanGeneratedSources
-./gradlew :examples:large-generated-project:generateLargeRepository
-./gradlew :examples:large-generated-project:generateLargeRepository
-./gradlew :examples:large-generated-project:generateLargeRepository
+./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=6000 -PirrelevantSourcesCount=600
 ./gradlew :examples:large-generated-project:generateIcons
 
 # Generation for incremental 3X
 ./gradlew :examples:large-generated-project:cleanIcons
 ./gradlew :examples:large-generated-project:cleanGeneratedSources
-./gradlew :examples:large-generated-project:generateLargeRepository
+./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
 ./gradlew :examples:large-generated-project:generateIcons
-./gradlew :examples:large-generated-project:generateLargeRepository
+./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
 ./gradlew :examples:large-generated-project:generateIcons
-./gradlew :examples:large-generated-project:generateLargeRepository
+./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
 ./gradlew :examples:large-generated-project:generateIcons
 ```
 
@@ -93,5 +98,4 @@ Compare the runtime of the `generateIcons` task of the "3X" vs. the last runtime
 You should see that the "incremental 3X", while technically running on the same number of file during the last run,
 only processed the new batched of X files, taking thus way less time than the "3X" run.
 
-If the example is not large enough for your taste, we invite you to bump the number of files in configuration of the 
-`generateLargeRepository` task in the `build.gradle.kts`.
+If the example is not large enough for your taste, we invite you to bump the number of files.
