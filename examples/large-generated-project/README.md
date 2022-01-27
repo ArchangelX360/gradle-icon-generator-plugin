@@ -47,6 +47,10 @@ Running the example for `intellij-community`-like repository:
 ```
 
 What is interesting to see in this example, is the fingerprinting time of the task.
+Indeed, this example is generated with a lot of files unmatched by the plugin file pattern.
+If the task was configured differently and the matching done inside the task instead of filtering the inputs themselves,
+before they are pass to the `generateIcons` task, the fingerprinting could take an observed 3 times additional time to
+execute in the IntelliJ example!
 
 ### Option 2: the large repository
 
