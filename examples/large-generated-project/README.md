@@ -40,8 +40,7 @@ Running the example reproducing an `intellij-community`-like repository:
 
 ```
 # (optional) cleanup any previously generated sources and outputs
-./gradlew cleanIcons
-./gradlew cleanGeneratedSources
+./gradlew cleanIcons cleanGeneratedSources
 
 # generate the repository, IntelliJ IDEA community has 54 source files containing icons, and 231023 other files
 ./gradlew generateSources -PiconSourcesCount=54 -PirrelevantSourcesCount=231023
@@ -63,8 +62,7 @@ parallelize the processing of a large number of matched sources.
 
 ```
 # (optional) cleanup any previously generated sources and outputs
-./gradlew cleanIcons
-./gradlew cleanGeneratedSources
+./gradlew cleanIcons cleanGeneratedSources
 
 # generate the repository
 ./gradlew generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
@@ -82,25 +80,21 @@ This is made on purpose for some additional tests to be run, for example, the in
 We invite you to run also this incremental comparison test:
 ```
 # Generation for 2X
-./gradlew cleanIcons
-./gradlew cleanGeneratedSources
-./gradlew generateSources -PiconSourcesCount=20000 -PirrelevantSourcesCount=600
+./gradlew cleanIcons cleanGeneratedSources
+./gradlew generateSources -PiconSourcesCount=10000 -PirrelevantSourcesCount=1000
 ./gradlew generateIcons
 
 # Generation for incremental 2X
-./gradlew cleanIcons
-./gradlew cleanGeneratedSources
-./gradlew generateSources -PiconSourcesCount=10000 -PirrelevantSourcesCount=300
+./gradlew cleanIcons cleanGeneratedSources
+./gradlew generateSources -PiconSourcesCount=9900 -PirrelevantSourcesCount=900
 ./gradlew generateIcons
-./gradlew generateSources -PiconSourcesCount=10000 -PirrelevantSourcesCount=300
+./gradlew generateSources -PiconSourcesCount=100 -PirrelevantSourcesCount=100
 ./gradlew generateIcons
 ```
 
 Compare the runtime of the `generateIcons` task of the "2X" vs. the last runtime of the "incremental 2X".
 You should see that the "incremental 2X", while technically running on the same number of file during the last run,
-only processed the new batched of X files, taking thus less time than the "2X" run.
-
-If the example is not large enough for the test to be conclusive, we invite you to bump the number of files.
+only processed the new batched of X files, taking thus significantly less time than the "2X" run.
 
 #### Parallelism test (or more specifically WorkerAPI test)
 
@@ -119,8 +113,7 @@ process a large number of inputs and which processing is isolated.
 To witness the benefit gained from our usage of the Worker API, you can run the following:
 ```
 # (optional) cleanup any previously generated sources and outputs
-./gradlew cleanIcons
-./gradlew cleanGeneratedSources
+./gradlew cleanIcons cleanGeneratedSources
 
 # (optional) generate sources if you don't already have some from previous tests
 ./gradlew generateSources -PiconSourcesCount=10000 -PirrelevantSourcesCount=500
