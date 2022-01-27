@@ -2,8 +2,10 @@ name: "Test"
 
 on:
   push:
-    tags-ignore:
-      - v*
+    paths-ignore:
+      - 'examples/**'
+      - '.github/**'
+      - 'README.md'
 
 jobs:
   build:
@@ -13,7 +15,7 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '11'
           cache: 'gradle'
       - name: Run plugin tests
         run: ./gradlew test --no-daemon
