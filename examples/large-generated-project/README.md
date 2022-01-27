@@ -14,12 +14,12 @@ questions such as:
 task.
 `large-generated-project` is delivered with 2 additional gradle tasks:
 
-- `:examples:large-generated-project:generateSources` to generate sources for the plugin to run on, it has 2 properties
+- `generateSources` to generate sources for the plugin to run on, it has 2 properties
   - `-PiconSourcesCount` the number of sources generated that represents a Java source containing icons, they are
     matched by the icon generation task of the plugin
   - `-PirrelevantSourcesCount` the number of sources generated that represents other files, that are not matched by the
     icon generation task of the plugin, they are just noise
-- `:examples:large-generated-project:cleanGeneratedSources` to clean the all the generated sources, to do another test
+- `cleanGeneratedSources` to clean the all the generated sources, to do another test
 
 ## Run the example
 
@@ -29,20 +29,25 @@ git clone https://github.com/ArchangelX360/gradle-icon-generator-plugin.git
 cd gradle-icon-generator-plugin
 ```
 
+Second, go to the example directory:
+```
+cd examples/large-generated-project/
+```
+
 ### Run 1: the `intellij-community`-like repository
 
 Running the example reproducing an `intellij-community`-like repository:
 
 ```
 # (optional) cleanup any previously generated sources and outputs
-./gradlew :examples:large-generated-project:cleanIcons
-./gradlew :examples:large-generated-project:cleanGeneratedSources
+./gradlew cleanIcons
+./gradlew cleanGeneratedSources
 
 # generate the repository, IntelliJ IDEA community has 54 source files containing icons, and 231023 other files
-./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=54 -PirrelevantSourcesCount=231023
+./gradlew generateSources -PiconSourcesCount=54 -PirrelevantSourcesCount=231023
 
 # Run the plugin's icon generation
-./gradlew :examples:large-generated-project:generateIcons
+./gradlew generateIcons
 ```
 
 What is interesting to see in this example, is the fingerprinting time of the task.
@@ -58,14 +63,14 @@ parallelize the processing of a large number of matched sources.
 
 ```
 # (optional) cleanup any previously generated sources and outputs
-./gradlew :examples:large-generated-project:cleanIcons
-./gradlew :examples:large-generated-project:cleanGeneratedSources
+./gradlew cleanIcons
+./gradlew cleanGeneratedSources
 
 # generate the repository
-./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
+./gradlew generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
 
 # Run the plugin's icon generation
-./gradlew :examples:large-generated-project:generateIcons   
+./gradlew generateIcons   
 ```
 
 #### Incremental comparison test
@@ -77,20 +82,20 @@ This is made on purpose for some additional tests to be run, for example, the in
 We invite you to run also this incremental comparison test:
 ```
 # Generation for 3X
-./gradlew :examples:large-generated-project:cleanIcons
-./gradlew :examples:large-generated-project:cleanGeneratedSources
-./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=6000 -PirrelevantSourcesCount=600
-./gradlew :examples:large-generated-project:generateIcons
+./gradlew cleanIcons
+./gradlew cleanGeneratedSources
+./gradlew generateSources -PiconSourcesCount=6000 -PirrelevantSourcesCount=600
+./gradlew generateIcons
 
 # Generation for incremental 3X
-./gradlew :examples:large-generated-project:cleanIcons
-./gradlew :examples:large-generated-project:cleanGeneratedSources
-./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
-./gradlew :examples:large-generated-project:generateIcons
-./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
-./gradlew :examples:large-generated-project:generateIcons
-./gradlew :examples:large-generated-project:generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
-./gradlew :examples:large-generated-project:generateIcons
+./gradlew cleanIcons
+./gradlew cleanGeneratedSources
+./gradlew generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
+./gradlew generateIcons
+./gradlew generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
+./gradlew generateIcons
+./gradlew generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
+./gradlew generateIcons
 ```
 
 Compare the runtime of the `generateIcons` task of the "3X" vs. the last runtime of the "incremental 3X".

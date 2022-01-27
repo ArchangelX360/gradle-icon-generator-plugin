@@ -14,10 +14,19 @@ git clone https://github.com/ArchangelX360/gradle-icon-generator-plugin.git
 cd gradle-icon-generator-plugin
 ```
 
+Second, go to the example directory:
+```
+cd examples/small-project/
+```
+
 Then, `small-project` being already generated, you can simply run:
 
 ```
-./gradlew :examples:small-project:generateIcons
+# (optional) cleanup any previously generated outputs
+./gradlew cleanIcons
+
+# Run the plugin's icon generation
+./gradlew generateIcons
 ```
 
 You should see some parsing errors, some ignored field warnings. Indeed, the example is set up with some ignored/invalid
