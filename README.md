@@ -4,7 +4,7 @@ A Gradle plugin to generate PNG files from Base64 encoded strings declared in Ja
 
 ## How to review?
 
-## Review using the examples
+### [RECOMMENDED] Review using the examples
 
 The repository has two example projects, declared as Gradle subprojects for convenience:
 
@@ -18,7 +18,7 @@ The repository has two example projects, declared as Gradle subprojects for conv
 We encourage reviewers to use the examples to try out the plugin, we invite them also to read the test suite
 of the plugin in `src/test/kotlin`, especially the [integration tests](https://github.com/ArchangelX360/gradle-icon-generator-plugin/blob/main/src/test/kotlin/io/github/archangelx360/IconGeneratorPluginTest.kt).
 
-## Review using the plugin on a different project
+### Review using the plugin on a different project
 
 In your `build.gradle.kts`, add the plugin like such:
 
@@ -44,7 +44,7 @@ The plugin will generate two tasks:
 - `generateIcons` to generate icons of sources configured through `generateIconsForSources` extension
 - `cleanIcons` to cleanup the outputs of `generateIcons` task
 
-### Configuration
+#### Configuration
 
 Some additional configuration are available such as:
 
