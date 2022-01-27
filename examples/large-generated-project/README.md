@@ -34,8 +34,8 @@ Second, go to the example directory:
 cd examples/large-generated-project/
 ```
 
-> Note: we invite you to run `./gradlew generateIcons --scan` if you want more in depth details about the execution time
-> breakdown
+> Note: we invite you to use `--scan` flag when running the `generateIcons` task if you want more in depth details about
+> the execution time breakdown and some other metrics
 
 ### Run 1: the `intellij-community`-like repository
 
