@@ -32,9 +32,9 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
     fun execute(inputChanges: InputChanges) {
         val workQueue = workerExecutor.noIsolation()
         inputChanges.getFileChanges(sourceFiles)
-            .asSequence()
-            .filter { it.fileType != FileType.DIRECTORY }
             .forEach { change ->
+                if (change.fileType != FileType.DIRECTORY) return@forEach
+
                 // each file has isolated output so can be process in parallel
                 workQueue.submit(
                     GenerateIconsAction::class.java
@@ -46,6 +46,5 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
                     this.fieldType.set(iconFieldType)
                 }
             }
-        workQueue.await()
     }
 }

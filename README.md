@@ -109,8 +109,11 @@ The plugin uses several optimisations
   of the task
 - `generateIcons` is cacheable, if the task ran for a sets of inputs, a subsequent run of the task for the same set of
   inputs will be instant recovering the outputs from the Gradle cache
-- `generateIcons` is executing in parallel, leveraging the WorkerAPI where each source file is processed in parallel to
-  improve performance (for example, build time reduced by 33% on IntelliJ Community repo)
+- `generateIcons` is executed in parallel, leveraging the [Worker API](https://docs.gradle.org/current/userguide/custom_tasks.html#worker_api)
+  where each source file is processed in parallel to improve performance (for example, build time reduced by 33% on
+  IntelliJ Community repo)
+- `generateIcons` [Worker API](https://docs.gradle.org/current/userguide/custom_tasks.html#worker_api) is leveraged 
+  without the `WorkQueue.await()` to allow independent tasks to run in parallel while processing icon files
 - the plugin's extension exposes a `PatternFilterable` property that is used at task configuration to reduce the
   potential high number of inputs for the `generateIcons` task by filtering file *before* setting them as inputs of the
   task. Large amount of inputs leads to long "fingerprinting" during the very first run of the task which impact

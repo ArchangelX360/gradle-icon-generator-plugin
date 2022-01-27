@@ -102,4 +102,37 @@ Compare the runtime of the `generateIcons` task of the "3X" vs. the last runtime
 You should see that the "incremental 3X", while technically running on the same number of file during the last run,
 only processed the new batched of X files, taking thus way less time than the "3X" run.
 
-If the example is not large enough for your taste, we invite you to bump the number of files.
+If the example is not large enough for the test to be conclusive, we invite you to bump the number of files.
+
+#### Parallelism test (or more specifically WorkerAPI test)
+
+Gradle has two concepts of parallel execution, they are linked but different, the concept of "parallel" runs and the
+[Worker API](https://docs.gradle.org/current/userguide/custom_tasks.html#worker_api) injected service.
+
+In this plugin, we cannot leverage parallel execution for our tasks, as we only have one business task (and one cleanup
+task). It would be configuration heavy to generate tasks on the fly, one per source file and run these tasks in 
+parallel.
+So, setting the parallelism (`--parallel`) or not(`--no-parallel`) will have no impact for the execution of the
+plugin's task `generateIcons` per se. However, it could only impact other task run before that, so it is still nice to
+run with parallelism on (which is why it is set in `gradle.properties` of the examples).
+
+Thankfully Gradle has another concept of parallelism through the Worker API for exactly our business case, a task that
+process a large number of inputs and which processing is isolated.
+To witness the benefit gained from our usage of the Worker API, you can run the following:
+```
+# (optional) cleanup any previously generated sources and outputs
+./gradlew cleanIcons
+./gradlew cleanGeneratedSources
+
+# (optional) generate sources if you don't already have some from previous tests
+./gradlew generateSources -PiconSourcesCount=10000 -PirrelevantSourcesCount=500
+
+# this will run the task with 4 workers pulling from the workqueue
+./gradlew generateIcons --rerun-tasks --max-workers=4
+
+# this will run the task with 1 workers pulling from the workqueue, a sequential run in short
+./gradlew generateIcons --rerun-tasks --max-workers=1
+```
+
+You should see some significant performance boost when multiple workers are used, Gradle use a sane default for this
+value, so it can be omitted in regular task runs.
