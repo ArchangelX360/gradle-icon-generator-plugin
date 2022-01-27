@@ -8,7 +8,7 @@
 
 ## Run the example
 
-First, clone the repository and publish the plugin locally, if not already done:
+First, clone the repository, if not already done:
 ```
 git clone https://github.com/ArchangelX360/gradle-icon-generator-plugin.git
 cd gradle-icon-generator-plugin

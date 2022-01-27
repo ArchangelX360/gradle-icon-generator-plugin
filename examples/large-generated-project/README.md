@@ -10,21 +10,20 @@ questions such as:
 
 ## What is provided in this project?
 
-`large-generated-project` is not generated when the repo is cloned, you have a few ways recommended ways of generating.
-`large-generated-project` is delivered with 3 additional gradle tasks:
+`large-generated-project` is not generated when the repository is cloned, you are required to run the source generation 
+task.
+`large-generated-project` is delivered with 2 additional gradle tasks:
 
-- `:examples:large-generated-project:generateIntelliJIDEACommunityLikeRepository` to generate a repository that has the
-  same kind of structure as `intellij-community` repository
-    - low number of matched source files (54)
-    - high number of non-matched source files (231023)
-- `:examples:large-generated-project:generateLargeRepository` to generate a large repository
-    - high number of matched source files (2000, with between 1 and 5 fields per class)
-    - low number of non-matched source files (100)
-- `:examples:large-generated-project:cleanGeneratedSources` to clean the all the generated sources, to restart some testing
+- `:examples:large-generated-project:generateSources` to generate sources for the plugin to run on, it has 2 properties
+  - `-PiconSourcesCount` the number of sources generated that represents a Java source containing icons, they are
+    matched by the icon generation task of the plugin
+  - `-PirrelevantSourcesCount` the number of sources generated that represents other files, that are not matched by the
+    icon generation task of the plugin, they are just noise
+- `:examples:large-generated-project:cleanGeneratedSources` to clean the all the generated sources, to do another test
 
 ## Run the example
 
-First, clone the repository and publish the plugin locally, if not already done:
+First, clone the repository, if not already done:
 ```
 git clone https://github.com/ArchangelX360/gradle-icon-generator-plugin.git
 cd gradle-icon-generator-plugin
@@ -71,8 +70,8 @@ parallelize the processing of a large number of matched sources.
 
 #### Incremental comparison test
 
-The `generateLargeRepository` (and `generateIntelliJIDEACommunityLikeRepository` for that matter) does not clean their
-generated sources between two runs, an explicit `cleanGeneratedSources` is needed.
+The `generateSources` task does not clean the generated sources between two runs, an explicit `cleanGeneratedSources` is
+required to be run.
 This is made on purpose for some additional tests to be run, for example, the incremental comparison test.
 
 We invite you to run also this incremental comparison test:
