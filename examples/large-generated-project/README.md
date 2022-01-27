@@ -48,8 +48,9 @@ Running the example reproducing an `intellij-community`-like repository:
 # generate the repository, IntelliJ IDEA community has 54 source files containing icons, and 231023 other files
 ./gradlew generateSources -PiconSourcesCount=54 -PirrelevantSourcesCount=231023
 
-# Run the plugin's icon generation (with `--scan` if possible, to check the fingerprinting execution time)
-./gradlew generateIcons --scan
+# Run the plugin's icon generation
+# (use `--scan` to check the fingerprinting execution time in the Gradle Build Scan UI)
+./gradlew generateIcons
 ```
 
 What is interesting to see in this example, is the fingerprinting time of the task.
