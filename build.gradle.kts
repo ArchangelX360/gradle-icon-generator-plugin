@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.archangelx360"
-version = "0.0.13"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
