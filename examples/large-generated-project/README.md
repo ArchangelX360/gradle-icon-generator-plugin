@@ -81,26 +81,24 @@ This is made on purpose for some additional tests to be run, for example, the in
 
 We invite you to run also this incremental comparison test:
 ```
-# Generation for 3X
+# Generation for 2X
 ./gradlew cleanIcons
 ./gradlew cleanGeneratedSources
-./gradlew generateSources -PiconSourcesCount=6000 -PirrelevantSourcesCount=600
+./gradlew generateSources -PiconSourcesCount=20000 -PirrelevantSourcesCount=600
 ./gradlew generateIcons
 
-# Generation for incremental 3X
+# Generation for incremental 2X
 ./gradlew cleanIcons
 ./gradlew cleanGeneratedSources
-./gradlew generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
+./gradlew generateSources -PiconSourcesCount=10000 -PirrelevantSourcesCount=300
 ./gradlew generateIcons
-./gradlew generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
-./gradlew generateIcons
-./gradlew generateSources -PiconSourcesCount=2000 -PirrelevantSourcesCount=200
+./gradlew generateSources -PiconSourcesCount=10000 -PirrelevantSourcesCount=300
 ./gradlew generateIcons
 ```
 
-Compare the runtime of the `generateIcons` task of the "3X" vs. the last runtime of the "incremental 3X".
-You should see that the "incremental 3X", while technically running on the same number of file during the last run,
-only processed the new batched of X files, taking thus way less time than the "3X" run.
+Compare the runtime of the `generateIcons` task of the "2X" vs. the last runtime of the "incremental 2X".
+You should see that the "incremental 2X", while technically running on the same number of file during the last run,
+only processed the new batched of X files, taking thus less time than the "2X" run.
 
 If the example is not large enough for the test to be conclusive, we invite you to bump the number of files.
 
