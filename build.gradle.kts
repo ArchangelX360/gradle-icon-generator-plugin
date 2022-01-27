@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.archangelx360"
-version = "0.0.7"
+version = "0.0.8"
 
 repositories {
     mavenCentral()
@@ -42,7 +42,13 @@ pluginBundle {
     tags = listOf("example", "assignment")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 val compilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "11"
     kotlinOptions.freeCompilerArgs += compilerArgs
 }
