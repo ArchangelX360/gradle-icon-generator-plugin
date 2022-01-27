@@ -26,7 +26,7 @@ internal class IconGeneratorPluginTest {
 
         val initialRun = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
             .withArguments(generateIconTaskName)
             .build()
         assertEquals(TaskOutcome.SUCCESS, initialRun.task(":${generateIconTaskName}")?.outcome)
@@ -47,7 +47,7 @@ internal class IconGeneratorPluginTest {
 
         val runnerBuilder = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
 
         val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
@@ -80,7 +80,7 @@ internal class IconGeneratorPluginTest {
 
         val runnerBuilder = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
 
         val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
@@ -113,7 +113,7 @@ internal class IconGeneratorPluginTest {
 
         val runnerBuilder = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
 
         val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
@@ -142,7 +142,7 @@ internal class IconGeneratorPluginTest {
 
         val runnerBuilder = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
 
         val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
@@ -176,7 +176,7 @@ internal class IconGeneratorPluginTest {
 
         val runnerBuilder = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
 
         val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
@@ -203,7 +203,7 @@ internal class IconGeneratorPluginTest {
 
         val runnerBuilder = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
 
         val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
@@ -222,7 +222,7 @@ internal class IconGeneratorPluginTest {
 
         val runnerBuilder = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
 
         val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
@@ -275,7 +275,7 @@ internal class IconGeneratorPluginTest {
 
         val runnerBuilder = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
 
         val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
@@ -343,7 +343,7 @@ internal class IconGeneratorPluginTest {
 
         val runnerBuilder = GradleRunner.create()
             .withProjectDir(projectDirectory)
-            .withPluginClasspath() // make `se.dorne.icon-generator` available
+            .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
 
         val initialRun = runnerBuilder
             .withArguments(generateIconTaskName)
@@ -385,7 +385,7 @@ internal class IconGeneratorPluginTest {
         assertThrows<UnexpectedBuildFailure> {
             GradleRunner.create()
                 .withProjectDir(projectDirectory)
-                .withPluginClasspath() // make `se.dorne.icon-generator` available
+                .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
                 .withArguments(generateIconTaskName)
                 .build()
         }
@@ -403,7 +403,7 @@ internal class IconGeneratorPluginTest {
         assertThrows<UnexpectedBuildFailure> {
             GradleRunner.create()
                 .withProjectDir(projectDirectory)
-                .withPluginClasspath() // make `se.dorne.icon-generator` available
+                .withPluginClasspath() // make `io.github.archangelx360.icon-generator` available
                 .withArguments(generateIconTaskName)
                 .build()
         }

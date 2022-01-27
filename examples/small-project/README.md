@@ -12,9 +12,6 @@ First, clone the repository and publish the plugin locally, if not already done:
 ```
 git clone https://github.com/ArchangelX360/gradle-icon-generator-plugin.git
 cd gradle-icon-generator-plugin
-
-# The plugin is not yet published to Gradle Plugin Portal, so you have to publish it locally
-./gradlew publishToMavenLocal
 ```
 
 Then, `small-project` being already generated, you can simply run:

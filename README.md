@@ -20,30 +20,11 @@ of the plugin in `src/test/kotlin`, especially the [integration tests](https://g
 
 ## Review using the plugin on a different project
 
-First, clone the repository and publish the plugin locally, if not already done:
-```
-git clone https://github.com/ArchangelX360/gradle-icon-generator-plugin.git
-cd gradle-icon-generator-plugin
-
-# The plugin is not yet published to Gradle Plugin Portal, so you have to publish it locally
-./gradlew publishToMavenLocal
-```
-
-Set up *at the very top* of your `settings.gradle.kts` the `mavenLocal()` plugin repository:
-```kotlin
-pluginManagement {
-    repositories {
-        mavenLocal()
-        gradlePluginPortal()
-    }
-}
-```
-
-Then, in your `build.gradle.kts`, add the plugin like such:
+In your `build.gradle.kts`, add the plugin like such:
 
 ```kotlin
 plugins {
-    id("se.dorne.icon-generator") version "0.0.1"
+    id("io.github.archangelx360.icon-generator") version "0.0.1"
 }
 ```
 
@@ -71,7 +52,7 @@ Some additional configuration are available such as:
   to `include("**/*Icons.java")`
 - `iconFieldType` the icon field pattern that selects which fields are being parsed as icons by filtering on the field's
   type, defaults to `String`
-- `outputDirectory` the root directory of the generated icons
+- `outputDirectory` the root directory of the generated icons, defaults to `<gradleProjectBuildDirectory>/icons`
 
 Example of configuration:
 

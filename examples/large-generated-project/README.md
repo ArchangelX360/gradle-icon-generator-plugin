@@ -27,9 +27,6 @@ First, clone the repository and publish the plugin locally, if not already done:
 ```
 git clone https://github.com/ArchangelX360/gradle-icon-generator-plugin.git
 cd gradle-icon-generator-plugin
-
-# The plugin is not yet published to Gradle Plugin Portal, so you have to publish it locally
-./gradlew publishToMavenLocal
 ```
 
 ### Option 1: the `intellij-community`-like repository
@@ -91,5 +88,5 @@ Compare the runtime of the `generateIcons` task of the "3X" vs. the last runtime
 You should see that the "incremental 3X", while technically running on the same number of file during the last run,
 only processed the new batched of X files, taking thus way less time than the "3X" run.
 
-If the example is not large enough for your taste, we invite you to bump the configuration of the 
+If the example is not large enough for your taste, we invite you to bump the number of files in configuration of the 
 `generateLargeRepository` task in the `build.gradle.kts`.

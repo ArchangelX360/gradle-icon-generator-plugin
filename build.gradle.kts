@@ -28,7 +28,7 @@ tasks.test {
 gradlePlugin {
     plugins {
         register("iconGeneratorPlugin") {
-            id = "se.dorne.icon-generator"
+            id = "io.github.archangelx360.icon-generator"
             displayName = "Icon Generator Plugin"
             description = "Generates PNG icons from Java sources base64 fields"
             implementationClass = "se.dorne.IconGeneratorPlugin"
