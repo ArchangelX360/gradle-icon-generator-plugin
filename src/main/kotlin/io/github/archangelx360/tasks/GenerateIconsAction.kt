@@ -21,8 +21,6 @@ interface GenerateIconsActionParameters : WorkParameters {
     val fieldType: Property<String>
 }
 
-private const val defaultIconType = "String"
-
 @OptIn(ExperimentalPathApi::class)
 abstract class GenerateIconsAction : WorkAction<GenerateIconsActionParameters> {
 
@@ -31,7 +29,7 @@ abstract class GenerateIconsAction : WorkAction<GenerateIconsActionParameters> {
         val sourceFile = parameters.sourceFile.get()
         val outputDirectory = parameters.outputDirectory.get()
         val stateOutputDirectory = parameters.stateOutputDirectory.get()
-        val iconFieldType = parameters.fieldType.orNull ?: defaultIconType
+        val iconFieldType = parameters.fieldType.get()
 
         val state = GenerateIconState.resolve(stateOutputDirectory, sourceFile)
         when (changeType) {
