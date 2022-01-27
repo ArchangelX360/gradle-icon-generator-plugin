@@ -33,7 +33,7 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
         val workQueue = workerExecutor.noIsolation()
         inputChanges.getFileChanges(sourceFiles)
             .forEach { change ->
-                if (change.fileType != FileType.DIRECTORY) return@forEach
+                if (change.fileType == FileType.DIRECTORY) return@forEach
 
                 // each file has isolated output so can be process in parallel
                 workQueue.submit(
