@@ -1,4 +1,4 @@
-package se.dorne
+package io.github.archangelx360
 
 import java.io.File
 import java.nio.file.Files

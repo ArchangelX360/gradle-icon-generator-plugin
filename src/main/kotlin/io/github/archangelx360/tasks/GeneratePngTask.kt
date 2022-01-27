@@ -1,4 +1,4 @@
-package se.dorne.tasks
+package io.github.archangelx360.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection

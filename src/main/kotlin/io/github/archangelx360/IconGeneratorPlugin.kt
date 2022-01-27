@@ -1,4 +1,4 @@
-package se.dorne
+package io.github.archangelx360
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -12,7 +12,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import se.dorne.tasks.GeneratePngTask
+import io.github.archangelx360.tasks.GeneratePngTask
 
 abstract class GeneratePngExtension {
     abstract val sources: ConfigurableFileCollection

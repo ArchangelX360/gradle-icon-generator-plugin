@@ -1,4 +1,4 @@
-package se.dorne.tasks
+package io.github.archangelx360.tasks
 
 import org.gradle.api.file.Directory
 import java.io.File

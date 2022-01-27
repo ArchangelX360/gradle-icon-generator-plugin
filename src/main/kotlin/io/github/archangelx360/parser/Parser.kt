@@ -1,4 +1,4 @@
-package se.dorne.parser
+package io.github.archangelx360.parser
 
 import com.github.javaparser.ParseProblemException
 import com.github.javaparser.StaticJavaParser
@@ -6,7 +6,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.StringLiteralExpr
-import se.dorne.LOG
+import io.github.archangelx360.LOG
 import java.io.File
 import java.util.*
 

@@ -5,8 +5,8 @@ plugins {
     id("com.gradle.plugin-publish") version "0.16.0"
 }
 
-group = "se.dorne"
-version = "0.0.3"
+group = "io.github.archangelx360"
+version = "0.0.5"
 
 repositories {
     mavenCentral()
@@ -31,7 +31,7 @@ gradlePlugin {
             id = "io.github.archangelx360.icon-generator"
             displayName = "Icon Generator Plugin"
             description = "Generates PNG icons from Java sources base64 fields"
-            implementationClass = "se.dorne.IconGeneratorPlugin"
+            implementationClass = "io.github.archangelx360.IconGeneratorPlugin"
         }
     }
 }

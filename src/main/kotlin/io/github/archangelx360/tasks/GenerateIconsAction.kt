@@ -1,4 +1,4 @@
-package se.dorne.tasks
+package io.github.archangelx360.tasks
 
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
@@ -6,8 +6,8 @@ import org.gradle.api.provider.Property
 import org.gradle.work.ChangeType
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import se.dorne.parser.Icon
-import se.dorne.parser.extractBase64Icons
+import io.github.archangelx360.parser.Icon
+import io.github.archangelx360.parser.extractBase64Icons
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi

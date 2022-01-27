@@ -1,4 +1,4 @@
-package se.dorne
+package io.github.archangelx360
 
 import org.apache.xerces.impl.dv.util.Base64
 import org.gradle.testkit.runner.GradleRunner

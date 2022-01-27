@@ -1,4 +1,4 @@
-package se.dorne.parser
+package io.github.archangelx360.parser
 
 import org.junit.jupiter.api.Test
 import java.io.File
