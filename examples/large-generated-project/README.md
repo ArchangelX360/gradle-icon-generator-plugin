@@ -20,6 +20,7 @@ questions such as:
 - `:examples:large-generated-project:generateLargeRepository` to generate a large repository
     - high number of matched source files (2000, with between 1 and 5 fields per class)
     - low number of non-matched source files (100)
+- `:examples:large-generated-project:cleanGeneratedSources` to clean the all the generated sources, to restart some testing
 
 ## Run the example
 
@@ -36,7 +37,7 @@ Running the example for `intellij-community`-like repository:
 ```
 # (optional) cleanup any previously generated sources and outputs
 ./gradlew :examples:large-generated-project:cleanIcons
-./gradlew :examples:large-generated-project:cleanSources
+./gradlew :examples:large-generated-project:cleanGeneratedSources
 
 # generate the repository
 ./gradlew :examples:large-generated-project:generateIntelliJIDEACommunityLikeRepository
@@ -54,7 +55,7 @@ Running the example for `intellij-community`-like repository:
 ```
 # (optional) cleanup any previously generated sources and outputs
 ./gradlew :examples:large-generated-project:cleanIcons
-./gradlew :examples:large-generated-project:cleanSources
+./gradlew :examples:large-generated-project:cleanGeneratedSources
 
 # generate the repository
 ./gradlew :examples:large-generated-project:generateLargeRepository
@@ -67,7 +68,7 @@ We invite you to run also this incrementality test:
 ```
 # Generation for 3X
 ./gradlew :examples:large-generated-project:cleanIcons
-./gradlew :examples:large-generated-project:cleanSources
+./gradlew :examples:large-generated-project:cleanGeneratedSources
 ./gradlew :examples:large-generated-project:generateLargeRepository
 ./gradlew :examples:large-generated-project:generateLargeRepository
 ./gradlew :examples:large-generated-project:generateLargeRepository
@@ -75,7 +76,7 @@ We invite you to run also this incrementality test:
 
 # Generation for incremental 3X
 ./gradlew :examples:large-generated-project:cleanIcons
-./gradlew :examples:large-generated-project:cleanSources
+./gradlew :examples:large-generated-project:cleanGeneratedSources
 ./gradlew :examples:large-generated-project:generateLargeRepository
 ./gradlew :examples:large-generated-project:generateIcons
 ./gradlew :examples:large-generated-project:generateLargeRepository
