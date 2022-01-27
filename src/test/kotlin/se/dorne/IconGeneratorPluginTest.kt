@@ -10,6 +10,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -334,6 +335,7 @@ internal class IconGeneratorPluginTest {
     }
 
     @Test
+    @Ignore("Disabled until we find a better way to check for creation time cross-OS and without having to sleep")
     fun `should not cleanup icons that are still in the source file`() {
         val projectDirectory = getTemporaryProjectDirectory(
             "example-project-tiny", ProjectConfiguration(
