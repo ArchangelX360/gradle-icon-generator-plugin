@@ -1,13 +1,13 @@
 package io.github.archangelx360.tasks
 
+import io.github.archangelx360.parser.Icon
+import io.github.archangelx360.parser.extractBase64Icons
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.work.ChangeType
 import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
-import io.github.archangelx360.parser.Icon
-import io.github.archangelx360.parser.extractBase64Icons
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
@@ -31,17 +31,17 @@ abstract class GenerateIconsAction : WorkAction<GenerateIconsActionParameters> {
         val stateOutputDirectory = parameters.stateOutputDirectory.get()
         val iconFieldType = parameters.fieldType.get()
 
-        val state = GenerateIconState.resolve(stateOutputDirectory, sourceFile)
+        val stateFile = resolveStateFile(stateOutputDirectory, sourceFile)
         when (changeType) {
             ChangeType.ADDED, ChangeType.MODIFIED -> {
                 val icons = extractBase64Icons(sourceFile, iconFieldType)
                     .associateBy { it.outputPath(outputDirectory) }
                 // create/update the added/modified icons
                 icons.forEach { (filepath, icon) -> icon.saveTo(filepath) }
-                state.updateStateAndCleanUpStaleOutputs(icons.keys)
+                updateStateAndCleanUpStaleOutputs(stateFile, icons.keys)
             }
             ChangeType.REMOVED -> {
-                state.updateStateAndCleanUpStaleOutputs(emptySet())
+                updateStateAndCleanUpStaleOutputs(stateFile, emptySet())
             }
         }
     }
@@ -57,5 +57,3 @@ abstract class GenerateIconsAction : WorkAction<GenerateIconsActionParameters> {
         return outputDirectory.file(outputRelativePath.toString()).asFile.toPath()
     }
 }
-
-
