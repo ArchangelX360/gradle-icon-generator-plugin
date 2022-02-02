@@ -172,6 +172,25 @@ internal class ParserTest {
         assertTrue(icons.isEmpty())
     }
 
+    @Test
+    fun `should not extract variable declared inside a function`() {
+        val sourceFile = createTemporarySourceFile(
+            """
+            package foo;
+
+            public class Example {                
+                
+                public String getSomething() {
+                    String testIcon = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/AP+gvaeTAAAAeElEQVRIiWNgGAVDHXTQ2oL/tLbkP60t+c9AY0tghv+G0g34FB9FcxEpOJwYS8g1/D9UfwiSJViDC1kxuQDDEiYKDUQHjEjs7+iSlAZRKJLr67HZfpgCC4iKZHIAScmUEgtwBgu1LKCJ4TALaGY4AwMNwnwUUB8AAGoAZWQIwMYBAAAAAElFTkSuQmCC";
+                    return testIcon;
+                }
+            }
+        """.trimIndent()
+        )
+        val icons = extractBase64Icons(sourceFile, "String")
+        assertTrue(icons.isEmpty())
+    }
+
     private fun createTemporarySourceFile(content: String, nameSuffix: String = "Example.java"): File {
         val sourceFile = File.createTempFile("ParserTest", nameSuffix)
         sourceFile.deleteOnExit()
