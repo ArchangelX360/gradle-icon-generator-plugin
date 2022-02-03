@@ -24,7 +24,7 @@ In your `build.gradle.kts`, add the plugin like such:
 
 ```kotlin
 plugins {
-    id("io.github.archangelx360.icon-generator") version "1.0.0"
+    id("io.github.archangelx360.icon-generator") version "1.0.1"
 }
 ```
 
