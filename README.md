@@ -126,6 +126,10 @@ The plugin uses several optimisations
   icons and regenerate the ones that are still in the code, whether they were part of the modification or not.
 - The syntactically correct source code given in input must _compile_ in order to avoid any possible conflicts in the
   icons output (as generation is based on the `fully_qualified_name_of_enclosing_class_of_the_field`)
+- Cache will not be sharable amongst machines if the `generateIcons` tasks is configured with input files that are not
+  inside a directory structure, relative to the project directory, that is common to all the machines that execute the
+  task. We recommend configuring input files to be project files, or at least files contained in a versioned directory
+  structure.
 
 ### Decisions
 
@@ -171,6 +175,21 @@ of the task execution will be higher (Gradle will have to fingerprint/hash more 
 As a benefit, the state is compatible with the incremental behaviour, indeed, only part of the full state is read, the
 state of changed files only. This reduces the "Task action execution" time and the memory footprint of the plugin task
 execution.
+
+##### Compact and sharable state
+
+We chose to implement the state as compact as possible, we minimized the amount of information stored in the state files.
+Within a state file, output paths will be stored relative to the deepest common directory, and this deepest common 
+directory in turn relative to the `outputFolder`.
+
+Each path is at best relative to the  project directory (state filename for example), or relative to the `outputFolder`
+(the deepest common directory, and by extension the output files stored in state files).
+The absence of absolute path makes the cache sharable amongst different machines that will build your project in the 
+usual configuration.
+
+*Beware nonetheless that if you declare input files of outside the project directory, the plugin will still work, but the
+task cache might not be sharable unless the directory structure of these input files, relative to the project directory,
+is common to your organisation (e.g. versioned in a VCS, agreed upon by convention, etc.).*
 
 ##### Discarded options for having no state
 
