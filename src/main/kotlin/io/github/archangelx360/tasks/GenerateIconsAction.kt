@@ -18,6 +18,7 @@ interface GenerateIconsActionParameters : WorkParameters {
     val sourceFile: Property<File>
     val outputDirectory: DirectoryProperty
     val stateOutputDirectory: DirectoryProperty
+    val projectDirectory: Property<File>
     val fieldType: Property<String>
 }
 
@@ -30,18 +31,19 @@ abstract class GenerateIconsAction : WorkAction<GenerateIconsActionParameters> {
         val outputDirectory = parameters.outputDirectory.get()
         val stateOutputDirectory = parameters.stateOutputDirectory.get()
         val iconFieldType = parameters.fieldType.get()
+        val projectDirectory = parameters.projectDirectory.get()
 
-        val stateFile = resolveStateFile(stateOutputDirectory, sourceFile)
+        val stateFile = resolveStateFile(stateOutputDirectory, projectDirectory.toPath(), sourceFile.toPath())
         when (changeType) {
             ChangeType.ADDED, ChangeType.MODIFIED -> {
                 val icons = extractBase64Icons(sourceFile, iconFieldType)
                     .associateBy { it.outputPath(outputDirectory) }
                 // create/update the added/modified icons
                 icons.forEach { (filepath, icon) -> icon.saveTo(filepath) }
-                updateStateAndCleanUpStaleOutputs(stateFile, icons.keys)
+                updateStateAndCleanUpStaleOutputs(outputDirectory.asFile.toPath(), stateFile, icons.keys)
             }
             ChangeType.REMOVED -> {
-                updateStateAndCleanUpStaleOutputs(stateFile, emptySet())
+                updateStateAndCleanUpStaleOutputs(outputDirectory.asFile.toPath(), stateFile, emptySet())
             }
         }
     }

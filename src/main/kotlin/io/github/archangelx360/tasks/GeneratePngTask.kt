@@ -43,6 +43,7 @@ abstract class GeneratePngTask @Inject constructor(private val workerExecutor: W
                     this.sourceFile.set(change.file)
                     this.outputDirectory.set(outputDir)
                     this.stateOutputDirectory.set(stateOutputDir)
+                    this.projectDirectory.set(project.projectDir)
                     this.fieldType.set(iconFieldType)
                 }
             }
